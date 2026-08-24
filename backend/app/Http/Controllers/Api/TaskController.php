@@ -36,7 +36,7 @@ class TaskController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string',
-            'category' => 'required|string|in:payment_collect,bill_pay,farming_work,vehicle,general',
+            'category' => 'nullable|string',
             'amount' => 'nullable|numeric',
             'task_date' => 'required|date',
             'task_time' => 'nullable|string',
