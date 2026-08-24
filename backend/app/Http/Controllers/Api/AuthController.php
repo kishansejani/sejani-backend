@@ -48,9 +48,8 @@ class AuthController extends Controller
         $family = \App\Models\Family::first();
         if ($family) {
             $user->families()->attach($family->id, [
-                'role' => 'member',
+                'relation_title_gu' => $validated['relationship'] ?? 'સભ્ય',
                 'is_admin' => false,
-                'can_view_all' => false,
             ]);
         }
 
