@@ -1,0 +1,22 @@
+# Dependencies
+**/node_modules/
+backend/vendor/
+backend/node_modules/
+mobile/node_modules/
+
+# Environment & Sensitive
+**/.env
+**/.env.*
+backend/.env
+mobile/.env
+
+# Build & System artifacts
+backend/cloudflared.exe
+backend/tunnel.log
+backend/*.log
+mobile/.expo/
+mobile/dist/
+mobile/web-build/
+*.log
+.DS_Store
+Thumbs.db
