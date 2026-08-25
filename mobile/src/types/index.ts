@@ -4,6 +4,8 @@ export interface UserProfile {
   birth_date?: string | null;
   blood_group?: string | null;
   occupation_gu?: string | null;
+  current_city_gu?: string | null;
+  native_village_gu?: string | null;
   avatar?: string | null;
   bio_gu?: string | null;
   emergency_contact?: string | null;

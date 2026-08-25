@@ -98,8 +98,8 @@ const translations: Record<string, Record<Language, string>> = {
     en: '🌾 Farming',
   },
   tabVault: {
-    gu: 'મારી તિજોરી',
-    en: 'My Vault',
+    gu: '🔐 અંગત નોંધ',
+    en: '🔐 Personal',
   },
   tabFamily: {
     gu: 'પરિવાર',

@@ -44,14 +44,26 @@ class AuthController extends Controller
             'relationship_to_head' => $validated['relationship'] ?? 'સભ્ય',
         ]);
 
-        // Link to first family (Sejani Family)
-        $family = \App\Models\Family::first();
-        if ($family) {
-            $user->families()->attach($family->id, [
-                'relation_title_gu' => $validated['relationship'] ?? 'સભ્ય',
-                'is_admin' => false,
-            ]);
+        // Create an isolated personal family specifically for this user
+        $familyNameGu = $validated['name'] . 'નો પરિવાર';
+        $familyNameEn = $validated['name'] . "'s Family";
+        $familyCode = strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $validated['name']), 0, 4) . rand(1000, 9999));
+        if (strlen($familyCode) < 6) {
+            $familyCode = 'FAM' . rand(10000, 99999);
         }
+
+        $family = \App\Models\Family::create([
+            'family_name_gu' => $familyNameGu,
+            'family_name_en' => $familyNameEn,
+            'family_code' => $familyCode,
+            'head_user_id' => $user->id,
+            'description_gu' => 'અંગત અને પારિવારિક ખાતું',
+        ]);
+
+        $user->families()->attach($family->id, [
+            'relation_title_gu' => $validated['relationship'] ?? 'મોભી',
+            'is_admin' => true,
+        ]);
 
         $deviceName = $request->device_name ?? 'mobile-app';
         $token = $user->createToken($deviceName)->plainTextToken;

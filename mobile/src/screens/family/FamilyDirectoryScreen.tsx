@@ -3,26 +3,30 @@ import {
   View,
   Text,
   StyleSheet,
-  TextInput,
   ScrollView,
+  Image,
   TouchableOpacity,
+  TextInput,
   RefreshControl,
   ActivityIndicator,
-  Image,
-  Modal,
   Linking,
+  Modal,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import {
   Search,
   Phone,
   Droplet,
   Briefcase,
-  Calendar,
+  MapPin,
   X,
-  ShieldCheck,
-  User,
   Users,
+  Shield,
+  Calendar,
+  Plus,
+  Lock,
 } from 'lucide-react-native';
 import { Colors } from '../../theme/colors';
 import { Header } from '../../components/Header';
@@ -31,7 +35,6 @@ import { Badge } from '../../components/Badge';
 import { Button } from '../../components/Button';
 import api from '../../api/client';
 import { FamilyMember } from '../../types';
-
 import { useLanguage } from '../../context/LanguageContext';
 
 export const FamilyDirectoryScreen: React.FC = () => {
@@ -43,6 +46,28 @@ export const FamilyDirectoryScreen: React.FC = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMember, setSelectedMember] = useState<FamilyMember | null>(null);
+
+  // Add Member State
+  const [addModalVisible, setAddModalVisible] = useState(false);
+  const [newMemberName, setNewMemberName] = useState('');
+  const [newMemberPhone, setNewMemberPhone] = useState('');
+  const [newMemberPassword, setNewMemberPassword] = useState('123456');
+  const [newMemberRelation, setNewMemberRelation] = useState('સભ્ય');
+  const [savingMember, setSavingMember] = useState(false);
+
+  const rolePresets = [
+    { key: 'સભ્ય', label: 'સભ્ય (Member)' },
+    { key: 'પિતા', label: 'પિતા (Father)' },
+    { key: 'માતા', label: 'માતા (Mother)' },
+    { key: 'પુત્ર', label: 'પુત્ર (Son)' },
+    { key: 'પુત્રી', label: 'પુત્રી (Daughter)' },
+    { key: 'કાકા', label: 'કાકા (Uncle)' },
+    { key: 'કાકી', label: 'કાકી (Aunt)' },
+    { key: 'ભાઈ', label: 'ભાઈ (Brother)' },
+    { key: 'બહેન', label: 'બહેન (Sister)' },
+    { key: 'દાદા', label: 'દાદા (Grandfather)' },
+    { key: 'દાદી', label: 'દાદી (Grandmother)' },
+  ];
 
   useEffect(() => {
     fetchFamily();
@@ -77,6 +102,37 @@ export const FamilyDirectoryScreen: React.FC = () => {
     });
   };
 
+  const handleAddMember = async () => {
+    if (!newMemberName.trim() || !newMemberPhone.trim()) {
+      Alert.alert(
+        t('attention', 'ધ્યાન આપો'),
+        language === 'gu' ? 'કૃપા કરીને સભ્યનું નામ અને ૧૦ આંકડાનો મોબાઈલ નંબર દાખલ કરો.' : 'Please enter member name and 10-digit mobile number.'
+      );
+      return;
+    }
+
+    setSavingMember(true);
+    try {
+      const res = await api.post('/family/add-member', {
+        name: newMemberName.trim(),
+        phone: newMemberPhone.trim(),
+        password: newMemberPassword.trim() || '123456',
+        relation_title_gu: newMemberRelation.trim() || 'સભ્ય',
+      });
+      Alert.alert(t('success', 'સફળ'), res.data?.message || (language === 'gu' ? 'નવા સભ્ય પરિવારમાં ઉમેરાઈ ગયા!' : 'Member added to family!'));
+      setAddModalVisible(false);
+      setNewMemberName('');
+      setNewMemberPhone('');
+      setNewMemberPassword('123456');
+      setNewMemberRelation('સભ્ય');
+      fetchFamily();
+    } catch (err: any) {
+      Alert.alert(t('error', 'ભૂલ'), err.response?.data?.message || (language === 'gu' ? 'સભ્ય ઉમેરવામાં ભૂલ આવી.' : 'Failed to add member.'));
+    } finally {
+      setSavingMember(false);
+    }
+  };
+
   const filteredMembers = members.filter((m) => {
     const q = searchQuery.toLowerCase();
     const name = (m.profile?.full_name_gu || m.name || '').toLowerCase();
@@ -90,6 +146,18 @@ export const FamilyDirectoryScreen: React.FC = () => {
       <Header
         title={t('familyDirectory', 'પરિવાર ડિરેક્ટરી')}
         subtitle={`${familyName} • ${members.length} ${language === 'gu' ? 'સભ્યો' : 'Members'}`}
+        rightAction={
+          <TouchableOpacity
+            style={styles.addMemberHeaderBtn}
+            onPress={() => setAddModalVisible(true)}
+            activeOpacity={0.8}
+          >
+            <Plus size={16} color="#FFFFFF" strokeWidth={2.5} style={{ marginRight: 4 }} />
+            <Text style={styles.addMemberHeaderBtnText}>
+              {language === 'gu' ? '+ સભ્ય ઉમેરો' : '+ Add Member'}
+            </Text>
+          </TouchableOpacity>
+        }
       />
 
       {/* Search & Stats Bar */}
@@ -127,7 +195,9 @@ export const FamilyDirectoryScreen: React.FC = () => {
           <Card style={styles.emptyCard}>
             <Users size={40} color={Colors.textMuted} style={{ marginBottom: 8 }} />
             <Text style={styles.emptyTitle}>{language === 'gu' ? 'કોઈ સભ્ય મળ્યા નહીં' : 'No members found'}</Text>
-            <Text style={styles.emptyDesc}>{language === 'gu' ? 'શોધ શબ્દ બદલીને ફરી પ્રયાસ કરો.' : 'Try changing search query.'}</Text>
+            <Text style={styles.emptyDesc}>
+              {language === 'gu' ? 'ઉપર "+ સભ્ય ઉમેરો" બટન દબાવીને તમારા પરિવારના સભ્યોને ઉમેરો.' : 'Tap "+ Add Member" above to invite family members.'}
+            </Text>
           </Card>
         ) : (
           filteredMembers.map((member) => (
@@ -155,7 +225,7 @@ export const FamilyDirectoryScreen: React.FC = () => {
                       {member.profile?.full_name_gu || member.name}
                     </Text>
                     {member.is_admin ? (
-                      <Badge label={language === 'gu' ? 'એડમિન' : 'Admin'} variant="accent" style={{ marginLeft: 6 }} />
+                      <Badge label={language === 'gu' ? 'મોભી' : 'Admin'} variant="accent" style={{ marginLeft: 6 }} />
                     ) : null}
                   </View>
 
@@ -194,6 +264,109 @@ export const FamilyDirectoryScreen: React.FC = () => {
           ))
         )}
       </ScrollView>
+
+      {/* ADD MEMBER MODAL */}
+      <Modal
+        visible={addModalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setAddModalVisible(false)}
+      >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={styles.modalOverlay}
+        >
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalHeading}>
+                {language === 'gu' ? '👨‍👩‍👧‍👦 પરિવારનો નવો સભ્ય ઉમેરો' : '👨‍👩‍👧‍👦 Add Family Member'}
+              </Text>
+              <TouchableOpacity onPress={() => setAddModalVisible(false)} style={styles.closeBtn}>
+                <X size={20} color={Colors.textSecondary} />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
+              <Text style={styles.inputLabel}>
+                {language === 'gu' ? 'સભ્યનું પૂરું નામ *' : 'Full Name *'}
+              </Text>
+              <TextInput
+                style={styles.input}
+                placeholder={language === 'gu' ? 'દા.ત. રમેશભાઈ પટેલ' : 'e.g. Ramesh Patel'}
+                placeholderTextColor={Colors.textMuted}
+                value={newMemberName}
+                onChangeText={setNewMemberName}
+              />
+
+              <Text style={styles.inputLabel}>
+                {language === 'gu' ? 'સંબંધ / રોલ પસંદ કરો:' : 'Select Relation/Role:'}
+              </Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipRow}>
+                {rolePresets.map((r) => {
+                  const isSelected = newMemberRelation === r.key;
+                  return (
+                    <TouchableOpacity
+                      key={r.key}
+                      style={[styles.roleChip, isSelected && styles.roleChipActive]}
+                      onPress={() => setNewMemberRelation(r.key)}
+                    >
+                      <Text style={[styles.roleChipText, isSelected && styles.roleChipTextActive]}>
+                        {r.label}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+
+              <Text style={styles.inputLabel}>
+                {language === 'gu' ? 'મોબાઈલ નંબર (લૉગિન માટે) *' : 'Mobile Number (For Login) *'}
+              </Text>
+              <TextInput
+                style={styles.input}
+                placeholder="9876543210"
+                placeholderTextColor={Colors.textMuted}
+                keyboardType="phone-pad"
+                maxLength={10}
+                value={newMemberPhone}
+                onChangeText={setNewMemberPhone}
+              />
+
+              <Text style={styles.inputLabel}>
+                {language === 'gu' ? 'લૉગિન પાસવર્ડ (Default: 123456)' : 'Login Password (Default: 123456)'}
+              </Text>
+              <TextInput
+                style={styles.input}
+                placeholder="123456"
+                placeholderTextColor={Colors.textMuted}
+                value={newMemberPassword}
+                onChangeText={setNewMemberPassword}
+              />
+
+              <View style={styles.infoBox}>
+                <Text style={styles.infoText}>
+                  💡 {language === 'gu' ? 'આ સભ્ય ઉમેર્યા પછી, તેઓ પોતાના ફોનમાં આ મોબાઈલ નંબર અને પાસવર્ડ વડે સીધા જ લૉગિન કરી શકશે.' : 'Once added, this member can immediately log in from their own phone using this mobile number & password.'}
+                </Text>
+              </View>
+
+              <View style={styles.modalFooter}>
+                <Button
+                  title={t('cancel', 'રદ કરો')}
+                  variant="outline"
+                  onPress={() => setAddModalVisible(false)}
+                  style={{ flex: 1, marginRight: 8 }}
+                />
+                <Button
+                  title={language === 'gu' ? 'સભ્ય ઉમેરો' : 'Add Member'}
+                  variant="primary"
+                  loading={savingMember}
+                  onPress={handleAddMember}
+                  style={{ flex: 2 }}
+                />
+              </View>
+            </ScrollView>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
 
       {/* Member Details Modal */}
       <Modal
@@ -251,24 +424,31 @@ export const FamilyDirectoryScreen: React.FC = () => {
                       </View>
                     ) : null}
 
-                    {selectedMember.profile?.birth_date ? (
-                      <View style={styles.detailItem}>
-                        <Text style={styles.detailLabel}>{language === 'gu' ? 'જન્મ તારીખ' : 'Birth Date'}</Text>
-                        <Text style={styles.detailValue}>{selectedMember.profile.birth_date}</Text>
-                      </View>
-                    ) : null}
-
                     {selectedMember.profile?.occupation_gu ? (
                       <View style={styles.detailItem}>
-                        <Text style={styles.detailLabel}>{t('occupation', 'વ્યવસાય / કામગીરી')}</Text>
+                        <Text style={styles.detailLabel}>{t('occupation', 'વ્યવસાય')}</Text>
                         <Text style={styles.detailValue}>{selectedMember.profile.occupation_gu}</Text>
                       </View>
                     ) : null}
 
-                    {selectedMember.profile?.bio_gu ? (
-                      <View style={[styles.detailItem, { width: '100%' }]}>
-                        <Text style={styles.detailLabel}>{t('bio', 'પરિચય')}</Text>
-                        <Text style={styles.detailValue}>{selectedMember.profile.bio_gu}</Text>
+                    {selectedMember.profile?.current_city_gu ? (
+                      <View style={styles.detailItem}>
+                        <Text style={styles.detailLabel}>{t('city', 'શહેર')}</Text>
+                        <Text style={styles.detailValue}>{selectedMember.profile.current_city_gu}</Text>
+                      </View>
+                    ) : null}
+
+                    {selectedMember.profile?.native_village_gu ? (
+                      <View style={styles.detailItem}>
+                        <Text style={styles.detailLabel}>{t('nativeVillage', 'વતન ગામ')}</Text>
+                        <Text style={styles.detailValue}>{selectedMember.profile.native_village_gu}</Text>
+                      </View>
+                    ) : null}
+
+                    {selectedMember.profile?.birth_date ? (
+                      <View style={styles.detailItem}>
+                        <Text style={styles.detailLabel}>{t('birthDate', 'જન્મ તારીખ')}</Text>
+                        <Text style={styles.detailValue}>{selectedMember.profile.birth_date}</Text>
                       </View>
                     ) : null}
                   </View>
@@ -276,9 +456,8 @@ export const FamilyDirectoryScreen: React.FC = () => {
                   <Button
                     title={`${language === 'gu' ? 'કૉલ કરો' : 'Call'} (${selectedMember.phone})`}
                     variant="primary"
-                    icon={<Phone size={18} color="#FFFFFF" />}
                     onPress={() => handleCall(selectedMember.phone)}
-                    style={{ marginTop: 20 }}
+                    style={{ marginTop: 14 }}
                   />
                 </ScrollView>
               </>
@@ -295,9 +474,23 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
+  addMemberHeaderBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.primary,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+  },
+  addMemberHeaderBtnText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '800',
+  },
   subBar: {
     backgroundColor: Colors.surface,
-    paddingTop: 12,
+    paddingHorizontal: 16,
+    paddingTop: 10,
     paddingBottom: 10,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
@@ -306,38 +499,39 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
+    backgroundColor: Colors.surfaceSecondary,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 10,
     marginBottom: 8,
   },
   codeText: {
     fontSize: 13,
+    fontWeight: '700',
     color: Colors.textSecondary,
-    fontWeight: '600',
   },
   searchBox: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.surfaceSecondary,
-    marginHorizontal: 16,
     borderRadius: 12,
     paddingHorizontal: 12,
-    height: 44,
+    paddingVertical: 8,
     borderWidth: 1,
     borderColor: Colors.border,
   },
   searchInput: {
     flex: 1,
-    fontSize: 13,
+    fontSize: 14,
     color: Colors.textPrimary,
   },
   scroll: {
-    paddingHorizontal: 16,
-    paddingTop: 14,
-    paddingBottom: 40,
+    padding: 16,
+    paddingBottom: 100,
   },
   memberCard: {
     marginBottom: 10,
-    padding: 12,
+    padding: 14,
   },
   cardRow: {
     flexDirection: 'row',
@@ -349,25 +543,25 @@ const styles = StyleSheet.create({
     borderRadius: 26,
     borderWidth: 2,
     borderColor: Colors.accent,
+    marginRight: 14,
   },
   memberInfo: {
     flex: 1,
-    marginLeft: 12,
   },
   nameRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   memberName: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '800',
     color: Colors.textPrimary,
   },
   relationTitle: {
     fontSize: 13,
-    color: Colors.primaryLight,
     fontWeight: '700',
-    marginTop: 2,
+    color: Colors.primary,
+    marginTop: 1,
   },
   metaRow: {
     flexDirection: 'row',
@@ -421,6 +615,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: Colors.textSecondary,
     marginTop: 4,
+    textAlign: 'center',
   },
   modalOverlay: {
     flex: 1,
@@ -431,7 +626,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface,
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
-    maxHeight: '85%',
+    maxHeight: '88%',
     paddingBottom: 24,
   },
   modalHeader: {
@@ -455,6 +650,66 @@ const styles = StyleSheet.create({
   modalBody: {
     paddingHorizontal: 20,
     paddingTop: 16,
+  },
+  inputLabel: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+    marginTop: 10,
+    marginBottom: 6,
+  },
+  input: {
+    backgroundColor: Colors.surfaceSecondary,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    fontSize: 15,
+    color: Colors.textPrimary,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  chipRow: {
+    flexDirection: 'row',
+    marginBottom: 6,
+  },
+  roleChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    backgroundColor: Colors.surfaceSecondary,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    marginRight: 8,
+  },
+  roleChipActive: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
+  roleChipText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: Colors.textSecondary,
+  },
+  roleChipTextActive: {
+    color: '#FFFFFF',
+  },
+  infoBox: {
+    backgroundColor: '#EFF6FF',
+    padding: 12,
+    borderRadius: 10,
+    marginTop: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: Colors.primary,
+  },
+  infoText: {
+    fontSize: 12,
+    color: Colors.primaryDark,
+    lineHeight: 18,
+  },
+  modalFooter: {
+    flexDirection: 'row',
+    marginTop: 16,
+    paddingBottom: 16,
   },
   modalAvatarSection: {
     alignItems: 'center',
