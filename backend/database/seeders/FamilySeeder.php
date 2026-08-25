@@ -14,6 +14,10 @@ class FamilySeeder extends Seeder
 {
     public function run(): void
     {
+        if (Family::where('family_code', 'PATEL2026')->exists()) {
+            return;
+        }
+
         // 1. Create Main Family: "શ્રી પટેલ પરિવાર"
         $family = Family::create([
             'family_name_gu' => 'શ્રી પટેલ પરિવાર',
