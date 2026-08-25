@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ActivityIndicator, StyleSheet, Platform } from 'react-native';
+import { View, Text, ActivityIndicator, StyleSheet, Platform, ImageBackground } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -129,10 +129,17 @@ export const RootNavigator = () => {
 
   if (isLoading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={Colors.primary} />
-        <Text style={styles.loadingText}>જય શ્રી કૃષ્ણ • તમારું સ્વાગત છે...</Text>
-      </View>
+      <ImageBackground
+        source={require('../../assets/farm_nature_bg.jpg')}
+        style={styles.loadingContainer}
+        resizeMode="cover"
+      >
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color="#FEF3C7" />
+          <Text style={styles.loadingText}>જય શ્રી કૃષ્ણ • તમારું સ્વાગત છે...</Text>
+          <Text style={styles.loadingSub}>PersonalInfo • સુરક્ષિત ડિજિટલ પોર્ટલ</Text>
+        </View>
+      </ImageBackground>
     );
   }
 
@@ -152,14 +159,28 @@ export const RootNavigator = () => {
 const styles = StyleSheet.create({
   loadingContainer: {
     flex: 1,
-    backgroundColor: Colors.background,
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingOverlay: {
+    backgroundColor: 'rgba(15, 23, 42, 0.75)',
+    paddingHorizontal: 28,
+    paddingVertical: 24,
+    borderRadius: 20,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   loadingText: {
     marginTop: 14,
-    fontSize: 15,
-    fontWeight: '700',
-    color: Colors.textPrimary,
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#FFFFFF',
+  },
+  loadingSub: {
+    marginTop: 4,
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#FEF3C7',
   },
 });

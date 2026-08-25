@@ -12,6 +12,13 @@ interface HeaderProps {
   rightAction?: React.ReactNode;
 }
 
+const getInitials = (name?: string | null) => {
+  if (!name || !name.trim()) return 'P';
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[1][0]).toUpperCase();
+};
+
 export const Header: React.FC<HeaderProps> = ({
   title,
   subtitle,
@@ -22,14 +29,16 @@ export const Header: React.FC<HeaderProps> = ({
   const { user } = useAuth();
   const { language, toggleLanguage, t } = useLanguage();
 
+  const userName = user?.name || user?.profile?.full_name_gu || '';
+
   return (
     <View style={styles.container}>
       <View style={styles.topRow}>
         <View style={styles.titleContainer}>
           <Text style={styles.badgeText}>✨ PersonalInfo • {t('securePortal', 'સુરક્ષિત પોર્ટલ')}</Text>
           <Text style={styles.mainTitle}>
-            {title || (user?.name || user?.profile?.full_name_gu 
-              ? `${t('greeting', 'જય શ્રી કૃષ્ણ')}, ${(language === 'en' ? (user?.profile?.full_name_en || user?.name) : (user?.profile?.full_name_gu || user?.name || '')).split(' ')[0]}` 
+            {title || (userName 
+              ? `${t('greeting', 'જય શ્રી કૃષ્ણ')}, ${(language === 'en' ? (user?.profile?.full_name_en || user?.name || '') : (user?.profile?.full_name_gu || user?.name || '')).split(' ')[0] || ''}` 
               : (language === 'gu' ? 'PersonalInfo ડેશબોર્ડ' : 'PersonalInfo Dashboard'))}
           </Text>
           {subtitle ? <Text style={styles.subTitle}>{subtitle}</Text> : null}
@@ -51,10 +60,16 @@ export const Header: React.FC<HeaderProps> = ({
           ) : showProfile && user ? (
             <TouchableOpacity style={styles.avatarButton} onPress={onProfilePress} activeOpacity={0.8}>
               <View style={styles.avatarRing}>
-                <Image
-                  source={{ uri: user.profile?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=2563EB&color=fff` }}
-                  style={styles.avatar}
-                />
+                {user.profile?.avatar ? (
+                  <Image
+                    source={{ uri: user.profile.avatar }}
+                    style={styles.avatar}
+                  />
+                ) : (
+                  <View style={styles.initialsAvatar}>
+                    <Text style={styles.initialsText}>{getInitials(userName)}</Text>
+                  </View>
+                )}
               </View>
             </TouchableOpacity>
           ) : null}
@@ -123,17 +138,31 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   avatarButton: {
-    marginLeft: 12,
+    marginLeft: 4,
   },
   avatarRing: {
     padding: 2,
     borderRadius: 24,
     borderWidth: 2,
     borderColor: Colors.accent,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
   },
   avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+  },
+  initialsAvatar: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: Colors.accentDark,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  initialsText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '900',
   },
 });

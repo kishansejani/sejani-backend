@@ -9,7 +9,9 @@ import {
   Alert,
   TextInput,
   Modal,
+  ActivityIndicator,
 } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import {
   User,
   ShieldCheck,
@@ -22,6 +24,7 @@ import {
   Lock,
   X,
   HeartHandshake,
+  Camera,
 } from 'lucide-react-native';
 import { Colors } from '../../theme/colors';
 import { Header } from '../../components/Header';
@@ -31,6 +34,13 @@ import { Button } from '../../components/Button';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import api from '../../api/client';
+
+const getInitials = (name?: string | null) => {
+  if (!name || !name.trim()) return 'P';
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[1][0]).toUpperCase();
+};
 
 const ROLE_OPTIONS = [
   { gu: 'સભ્ય', en: 'Member' },
@@ -59,6 +69,47 @@ export const ProfileScreen: React.FC = () => {
   const [emergencyContact, setEmergencyContact] = useState(user?.profile?.emergency_contact || '');
   const [bioGu, setBioGu] = useState(user?.profile?.bio_gu || '');
   const [savingProfile, setSavingProfile] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+
+  const handlePickAvatar = async () => {
+    try {
+      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permission.granted) {
+        Alert.alert(t('attention', 'ધ્યાન આપો'), language === 'gu' ? 'ફોટો પસંદ કરવા માટે ગેલેરીની પરવાનગી જરૂરી છે.' : 'Gallery permission is required to pick a photo.');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.6,
+        base64: true,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const asset = result.assets[0];
+        const base64Avatar = asset.base64 ? `data:image/jpeg;base64,${asset.base64}` : asset.uri;
+
+        setUploadingAvatar(true);
+        const res = await api.post('/profile', {
+          avatar: base64Avatar,
+          full_name_gu: user?.profile?.full_name_gu || user?.name || '',
+          relation_title_gu: user?.family?.relation_title_gu || 'સભ્ય',
+        });
+
+        if (res.data?.user) {
+          updateProfileState(res.data.user);
+          Alert.alert(t('success', 'સફળ'), language === 'gu' ? 'પ્રોફાઇલ ફોટો સફળતાપૂર્વક અપડેટ થઈ ગયો!' : 'Profile photo updated successfully!');
+        }
+      }
+    } catch (err: any) {
+      console.warn('Pick avatar error:', err);
+      Alert.alert(t('error', 'ભૂલ'), language === 'gu' ? 'ફોટો અપડેટ કરવામાં ભૂલ આવી.' : 'Error updating profile photo.');
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
 
   // Change Password States
   const [pwdModalVisible, setPwdModalVisible] = useState(false);
@@ -158,14 +209,27 @@ export const ProfileScreen: React.FC = () => {
         {/* Profile Card */}
         <Card variant="gold" style={styles.profileCard}>
           <View style={styles.avatarRow}>
-            <Image
-              source={{
-                uri:
-                  user?.profile?.avatar ||
-                  `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'User')}&background=1E3A8A&color=F59E0B&size=160`,
-              }}
-              style={styles.avatar}
-            />
+            <TouchableOpacity onPress={handlePickAvatar} activeOpacity={0.8} style={styles.avatarWrapper}>
+              {user?.profile?.avatar ? (
+                <Image
+                  source={{ uri: user.profile.avatar }}
+                  style={styles.avatar}
+                />
+              ) : (
+                <View style={styles.initialsAvatarLarge}>
+                  <Text style={styles.initialsTextLarge}>
+                    {getInitials(user?.profile?.full_name_gu || user?.name)}
+                  </Text>
+                </View>
+              )}
+              <View style={styles.cameraIconBadge}>
+                {uploadingAvatar ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <Camera size={13} color="#FFFFFF" />
+                )}
+              </View>
+            </TouchableOpacity>
             <View style={styles.avatarInfo}>
               <Text style={styles.userName}>{user?.profile?.full_name_gu || user?.name}</Text>
               <Text style={styles.userPhone}>📱 {user?.phone}</Text>
@@ -703,5 +767,37 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginTop: 20,
     marginBottom: 24,
+  },
+  avatarWrapper: {
+    position: 'relative',
+    marginRight: 16,
+  },
+  initialsAvatarLarge: {
+    width: 68,
+    height: 68,
+    borderRadius: 34,
+    backgroundColor: Colors.accentDark,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2.5,
+    borderColor: Colors.accent,
+  },
+  initialsTextLarge: {
+    color: '#FFFFFF',
+    fontSize: 24,
+    fontWeight: '900',
+  },
+  cameraIconBadge: {
+    position: 'absolute',
+    bottom: -2,
+    right: -2,
+    backgroundColor: Colors.primary,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
   },
 });

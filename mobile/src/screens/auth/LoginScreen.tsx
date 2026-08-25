@@ -11,6 +11,7 @@ import {
   Alert,
   Keyboard,
   TouchableWithoutFeedback,
+  ImageBackground,
 } from 'react-native';
 import { Lock, Phone, Eye, EyeOff, ShieldCheck, User as UserIcon, HeartHandshake } from 'lucide-react-native';
 import { Colors } from '../../theme/colors';
@@ -111,35 +112,41 @@ export const LoginScreen: React.FC = () => {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Royal Blue Heritage Header */}
-          <View style={styles.heroSection}>
-            {/* Top Language Toggle */}
-            <TouchableOpacity
-              style={styles.heroLangBtn}
-              onPress={toggleLanguage}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.heroLangText}>
-                {language === 'gu' ? '🌐 Switch to English' : '🌐 ગુજરાતીમાં ફેરવો'}
-              </Text>
-            </TouchableOpacity>
+          {/* Serene Natural Farm Background Hero Header */}
+          <ImageBackground
+            source={require('../../assets/farm_nature_bg.jpg')}
+            style={styles.heroSection}
+            resizeMode="cover"
+          >
+            <View style={styles.heroOverlay}>
+              {/* Top Language Toggle */}
+              <TouchableOpacity
+                style={styles.heroLangBtn}
+                onPress={toggleLanguage}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.heroLangText}>
+                  {language === 'gu' ? '🌐 Switch to English' : '🌐 ગુજરાતીમાં ફેરવો'}
+                </Text>
+              </TouchableOpacity>
 
-            <View style={styles.logoBadge}>
-              <Text style={styles.omSymbol}>卐</Text>
-            </View>
-            <Text style={styles.appTitle}>
-              {language === 'gu' ? 'જય શ્રી કૃષ્ણ • તમારું સ્વાગત છે' : 'Jai Shree Krishna • Welcome'}
-            </Text>
-            <Text style={styles.appSubtitle}>
-              {language === 'gu' ? 'PersonalInfo • સુરક્ષિત પારિવારિક & અંગત પોર્ટલ' : 'PersonalInfo • Secure Personal & Family Portal'}
-            </Text>
-            <View style={styles.securityTag}>
-              <ShieldCheck size={14} color="#FEF3C7" style={{ marginRight: 4 }} />
-              <Text style={styles.securityTagText}>
-                {language === 'gu' ? '૧૦૦% સુરક્ષિત ખાનગી પોર્ટલ' : '100% Secure Private Portal'}
+              <View style={styles.logoBadge}>
+                <Text style={styles.omSymbol}>卐</Text>
+              </View>
+              <Text style={styles.appTitle}>
+                {language === 'gu' ? 'જય શ્રી કૃષ્ણ • તમારું સ્વાગત છે' : 'Jai Shree Krishna • Welcome'}
               </Text>
+              <Text style={styles.appSubtitle}>
+                {language === 'gu' ? 'PersonalInfo • સુરક્ષિત પારિવારિક & અંગત પોર્ટલ' : 'PersonalInfo • Secure Personal & Family Portal'}
+              </Text>
+              <View style={styles.securityTag}>
+                <ShieldCheck size={14} color="#FEF3C7" style={{ marginRight: 4 }} />
+                <Text style={styles.securityTagText}>
+                  {language === 'gu' ? '૧૦૦% સુરક્ષિત ખાનગી પોર્ટલ' : '100% Secure Private Portal'}
+                </Text>
+              </View>
             </View>
-          </View>
+          </ImageBackground>
 
           {/* Auth Mode Toggle Pill */}
           <View style={styles.modeToggleContainer}>
@@ -354,13 +361,16 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   heroSection: {
-    backgroundColor: Colors.primary,
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
+    overflow: 'hidden',
+  },
+  heroOverlay: {
+    backgroundColor: 'rgba(15, 23, 42, 0.68)',
     paddingTop: 50,
     paddingBottom: 45,
     paddingHorizontal: 24,
     alignItems: 'center',
-    borderBottomLeftRadius: 32,
-    borderBottomRightRadius: 32,
   },
   heroLangBtn: {
     alignSelf: 'flex-end',
