@@ -131,7 +131,7 @@ export const RootNavigator = () => {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={Colors.primary} />
-        <Text style={styles.loadingText}>શ્રી સેજાણી પરિવાર એપ લોડ થઈ રહી છે...</Text>
+        <Text style={styles.loadingText}>જય શ્રી કૃષ્ણ • તમારું સ્વાગત છે...</Text>
       </View>
     );
   }

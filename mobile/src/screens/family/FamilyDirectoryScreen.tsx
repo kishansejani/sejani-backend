@@ -37,8 +37,8 @@ import { useLanguage } from '../../context/LanguageContext';
 export const FamilyDirectoryScreen: React.FC = () => {
   const { language, t } = useLanguage();
   const [members, setMembers] = useState<FamilyMember[]>([]);
-  const [familyName, setFamilyName] = useState<string>('શ્રી સેજાણી પરિવાર');
-  const [familyCode, setFamilyCode] = useState<string>('SEJANI2026');
+  const [familyName, setFamilyName] = useState<string>('મારો પરિવાર');
+  const [familyCode, setFamilyCode] = useState<string>('FAMILY2026');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');

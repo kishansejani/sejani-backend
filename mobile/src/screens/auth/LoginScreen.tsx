@@ -127,8 +127,12 @@ export const LoginScreen: React.FC = () => {
             <View style={styles.logoBadge}>
               <Text style={styles.omSymbol}>卐</Text>
             </View>
-            <Text style={styles.appTitle}>{t('appName', 'શ્રી સેજાણી પરિવાર')}</Text>
-            <Text style={styles.appSubtitle}>{t('appSubtitle', 'ખાનગી અને સુરક્ષિત પારિવારિક એપ્લિકેશન')}</Text>
+            <Text style={styles.appTitle}>
+              {language === 'gu' ? 'જય શ્રી કૃષ્ણ • તમારું સ્વાગત છે' : 'Jai Shree Krishna • Welcome'}
+            </Text>
+            <Text style={styles.appSubtitle}>
+              {language === 'gu' ? 'PersonalInfo • સુરક્ષિત પારિવારિક & અંગત પોર્ટલ' : 'PersonalInfo • Secure Personal & Family Portal'}
+            </Text>
             <View style={styles.securityTag}>
               <ShieldCheck size={14} color="#FEF3C7" style={{ marginRight: 4 }} />
               <Text style={styles.securityTagText}>

@@ -379,9 +379,11 @@ export const TasksScreen: React.FC = () => {
           {/* Footer */}
           <View style={styles.brandingFooter}>
             <Text style={styles.brandText}>
-              Made with ❤️ by <Text style={{ fontWeight: '900', color: Colors.primary }}>Kishan Sejani</Text>
+              {language === 'gu' ? '✨ PersonalInfo • સુરક્ષિત પોર્ટલ' : '✨ PersonalInfo • Secure Portal'}
             </Text>
-            <Text style={styles.familyTagText}>શ્રી સેજાણી પરિવાર • ૧૦૦% સુરક્ષિત ખાનગી પોર્ટલ</Text>
+            <Text style={styles.familyTagText}>
+              {language === 'gu' ? '૧૦૦% સુરક્ષિત ખાનગી પોર્ટલ' : '100% Secure Private Portal'}
+            </Text>
           </View>
         </ScrollView>
 

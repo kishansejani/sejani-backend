@@ -7,8 +7,8 @@ export const exportDetailedFarmingReport = (
   tractorWorks: any[],
   user?: any
 ) => {
-  const familyName = user?.family?.name_gu || 'શ્રી સેજાણી પરિવાર';
-  const ownerName = user?.profile?.full_name_gu || user?.name || 'કિશન સેજાણી';
+  const familyName = user?.family?.name_gu || (user?.name ? `${user.name}નો પરિવાર` : 'PersonalInfo');
+  const ownerName = user?.profile?.full_name_gu || user?.name || 'ખેડૂત મિત્ર';
 
   // 1. Production Rows
   const prodRows = productions.map((p, i) => `
@@ -151,7 +151,7 @@ export const exportDetailedFarmingReport = (
   </table>
 
   <div class="footer">
-    આ દસ્તાવેજ શ્રી સેજાણી પરિવાર એપ્લિકેશનમાંથી આપોઆપ જનરેટ થયેલ છે. • Made with ❤️ by Kishan Sejani
+    આ દસ્તાવેજ PersonalInfo એપ્લિકેશનમાંથી આપોઆપ જનરેટ થયેલ છે.
   </div>
 </body>
 </html>

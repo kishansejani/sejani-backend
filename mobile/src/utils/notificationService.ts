@@ -30,7 +30,7 @@ export const notificationService = {
       // 1. Android High-Priority Channel for Lock Screen & Sound
       if (Platform.OS === 'android') {
         await Notifications.setNotificationChannelAsync('default', {
-          name: 'શ્રી સેજાણી પરિવાર - રિમાઇન્ડર એલર્ટ્સ',
+          name: 'PersonalInfo - રિમાઇન્ડર એલર્ટ્સ',
           description: 'પેમેન્ટ અને કામના સમયસર એલર્ટ્સ (Lock screen notification)',
           importance: Notifications.AndroidImportance.MAX,
           vibrationPattern: [0, 300, 200, 300],
