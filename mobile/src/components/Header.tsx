@@ -27,7 +27,11 @@ export const Header: React.FC<HeaderProps> = ({
       <View style={styles.topRow}>
         <View style={styles.titleContainer}>
           <Text style={styles.badgeText}>✨ PersonalInfo • {t('securePortal', 'સુરક્ષિત પોર્ટલ')}</Text>
-          <Text style={styles.mainTitle}>{title || (user?.name || user?.profile?.full_name_gu ? `${t('greeting', 'જય શ્રી કૃષ્ણ')}, ${(user?.profile?.full_name_gu || user?.name || '').split(' ')[0]}` : 'PersonalInfo ડેશબોર્ડ')}</Text>
+          <Text style={styles.mainTitle}>
+            {title || (user?.name || user?.profile?.full_name_gu 
+              ? `${t('greeting', 'જય શ્રી કૃષ્ણ')}, ${(language === 'en' ? (user?.profile?.full_name_en || user?.name) : (user?.profile?.full_name_gu || user?.name || '')).split(' ')[0]}` 
+              : (language === 'gu' ? 'PersonalInfo ડેશબોર્ડ' : 'PersonalInfo Dashboard'))}
+          </Text>
           {subtitle ? <Text style={styles.subTitle}>{subtitle}</Text> : null}
         </View>
 

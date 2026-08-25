@@ -10,7 +10,10 @@ import {
 import { ChevronDown, X } from 'lucide-react-native';
 import { Colors } from '../theme/colors';
 
+import { useLanguage } from '../context/LanguageContext';
+
 export const DismissKeyboardBar: React.FC = () => {
+  const { language } = useLanguage();
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
 
   useEffect(() => {
@@ -41,7 +44,9 @@ export const DismissKeyboardBar: React.FC = () => {
         activeOpacity={0.8}
       >
         <ChevronDown size={18} color="#FFFFFF" style={{ marginRight: 6 }} />
-        <Text style={styles.closeBtnText}>કીબોર્ડ બંધ કરો (Done ✕)</Text>
+        <Text style={styles.closeBtnText}>
+          {language === 'gu' ? 'કીબોર્ડ બંધ કરો (Done ✕)' : 'Dismiss Keyboard (Done ✕)'}
+        </Text>
       </TouchableOpacity>
     </View>
   );

@@ -14,6 +14,7 @@ import {
 import { Colors } from '../theme/colors';
 import { Button } from './Button';
 import { PersonalRecord } from '../types';
+import { useLanguage } from '../context/LanguageContext';
 
 interface AddRecordModalProps {
   visible: boolean;
@@ -28,6 +29,7 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
   onSubmit,
   editingRecord,
 }) => {
+  const { language, t } = useLanguage();
   const [recordType, setRecordType] = useState<'note' | 'expense' | 'document' | 'reminder' | 'diary'>('note');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -60,7 +62,7 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
 
   const handleSave = async () => {
     if (!title.trim()) {
-      Alert.alert('ધ્યાન આપો', 'કૃપા કરીને શીર્ષક દાખલ કરો.');
+      Alert.alert(t('attention', 'ધ્યાન આપો'), language === 'gu' ? 'કૃપા કરીને શીર્ષક દાખલ કરો.' : 'Please enter a title.');
       return;
     }
 
@@ -86,11 +88,11 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
   };
 
   const typeOptions: { key: typeof recordType; label: string }[] = [
-    { key: 'note', label: '📝 અંગત નોંધ' },
-    { key: 'expense', label: '💰 ખર્ચ/હિસાબ' },
-    { key: 'document', label: '📑 દસ્તાવેજ' },
-    { key: 'reminder', label: '⏰ રિમાઇન્ડર' },
-    { key: 'diary', label: '📖 ડાયરી' },
+    { key: 'note', label: language === 'gu' ? '📝 અંગત નોંધ' : '📝 Personal Note' },
+    { key: 'expense', label: language === 'gu' ? '💰 ખર્ચ/હિસાબ' : '💰 Expense/Ledger' },
+    { key: 'document', label: language === 'gu' ? '📑 દસ્તાવેજ' : '📑 Document' },
+    { key: 'reminder', label: language === 'gu' ? '⏰ રિમાઇન્ડર' : '⏰ Reminder' },
+    { key: 'diary', label: language === 'gu' ? '📖 ડાયરી' : '📖 Diary' },
   ];
 
   return (
@@ -102,7 +104,9 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
         <View style={styles.content}>
           <View style={styles.header}>
             <Text style={styles.title}>
-              {editingRecord ? '✏️ નોંધ સુધારો' : '✨ નવી અંગત નોંધ ઉમેરો'}
+              {editingRecord 
+                ? (language === 'gu' ? '✏️ નોંધ સુધારો' : '✏️ Edit Record') 
+                : (language === 'gu' ? '✨ નવી અંગત નોંધ ઉમેરો' : '✨ Add New Private Record')}
             </Text>
             <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
               <Text style={styles.closeTxt}>✕</Text>
@@ -111,7 +115,7 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
 
           <ScrollView style={styles.body} showsVerticalScrollIndicator={false}>
             {/* Record Type Selector */}
-            <Text style={styles.label}>પ્રકાર પસંદ કરો:</Text>
+            <Text style={styles.label}>{language === 'gu' ? 'પ્રકાર પસંદ કરો:' : 'Select Type:'}</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.typeRow}>
               {typeOptions.map((item) => (
                 <TouchableOpacity
@@ -135,10 +139,10 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
             </ScrollView>
 
             {/* Title */}
-            <Text style={styles.label}>શીર્ષક (Title) *</Text>
+            <Text style={styles.label}>{language === 'gu' ? 'શીર્ષક (Title) *' : 'Title *'}</Text>
             <TextInput
               style={styles.input}
-              placeholder="દા.ત. જમીનના કાગળો, સોનું ખરીદી..."
+              placeholder={language === 'gu' ? 'દા.ત. જમીનના કાગળો, સોનું ખરીદી...' : 'e.g. Land papers, Gold purchase...'}
               placeholderTextColor={Colors.textMuted}
               value={title}
               onChangeText={setTitle}
@@ -147,10 +151,10 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
             {/* Amount if Expense */}
             {recordType === 'expense' ? (
               <>
-                <Text style={styles.label}>રકમ (₹ Amount)</Text>
+                <Text style={styles.label}>{language === 'gu' ? 'રકમ (₹ Amount)' : 'Amount (₹)'}</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder="દા.ત. 15000"
+                  placeholder={language === 'gu' ? 'દા.ત. 15000' : 'e.g. 15000'}
                   placeholderTextColor={Colors.textMuted}
                   keyboardType="numeric"
                   value={amount}
@@ -160,10 +164,10 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
             ) : null}
 
             {/* Content / Details */}
-            <Text style={styles.label}>વિગતવાર નોંધ (Private Content)</Text>
+            <Text style={styles.label}>{language === 'gu' ? 'વિગતવાર નોંધ (Private Content)' : 'Private Details / Notes'}</Text>
             <TextInput
               style={[styles.input, styles.textArea]}
-              placeholder="અહીં તમારી ખાનગી વિગતો લખો. આ માત્ર તમે જ જોઈ શકશો."
+              placeholder={language === 'gu' ? 'અહીં તમારી ખાનગી વિગતો લખો. આ માત્ર તમે જ જોઈ શકશો.' : 'Enter your private notes here. Strictly visible only to you.'}
               placeholderTextColor={Colors.textMuted}
               multiline
               numberOfLines={4}
@@ -172,7 +176,7 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
             />
 
             {/* Date */}
-            <Text style={styles.label}>તારીખ (YYYY-MM-DD)</Text>
+            <Text style={styles.label}>{language === 'gu' ? 'તારીખ (YYYY-MM-DD)' : 'Date (YYYY-MM-DD)'}</Text>
             <TextInput
               style={styles.input}
               placeholder="2026-08-24"
@@ -183,20 +187,20 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
 
             <View style={styles.privacyNote}>
               <Text style={styles.privacyText}>
-                🔒 <Text style={{ fontWeight: 'bold' }}>સુરક્ષા ખાતરી:</Text> આ રેકોર્ડ તમારા આઈડી સાથે જોડાયેલો છે. પરિવારના અન્ય કોઈ સભ્ય આ જોઈ શકશે નહીં.
+                🔒 <Text style={{ fontWeight: 'bold' }}>{language === 'gu' ? 'સુરક્ષા ખાતરી:' : 'Security Guarantee:'}</Text> {language === 'gu' ? 'આ રેકોર્ડ તમારા આઈડી સાથે જોડાયેલો છે. પરિવારના અન્ય કોઈ સભ્ય આ જોઈ શકશે નહીં.' : 'This private record is encrypted and tied to your user ID. No other family member can access it.'}
               </Text>
             </View>
           </ScrollView>
 
           <View style={styles.footer}>
             <Button
-              title="રદ કરો"
+              title={t('cancel', 'રદ કરો')}
               variant="outline"
               onPress={onClose}
               style={{ flex: 1, marginRight: 8 }}
             />
             <Button
-              title={editingRecord ? 'અપડેટ કરો' : 'સાચવો'}
+              title={editingRecord ? (language === 'gu' ? 'અપડેટ કરો' : 'Update') : t('save', 'સાચવો')}
               variant="primary"
               loading={loading}
               onPress={handleSave}

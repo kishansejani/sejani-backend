@@ -117,26 +117,28 @@ export const FarmingScreen: React.FC = () => {
     'medicine': { title: 'ઇયળ દવા છંટકાવ', qty: '3', rate: '1200', amount: '3600' },
   });
 
-  const cropSuggestions = ['મગફળી', 'કપાસ', 'જીરું', 'ઘઉં', 'ડુંગળી', 'તલ', 'સોયાબીન', 'ચણા', 'ધાણા', 'વરિયાળી', 'બાજરી', 'લસણ'];
+  const cropSuggestions = language === 'gu'
+    ? ['મગફળી', 'કપાસ', 'જીરું', 'ઘઉં', 'ડુંગળી', 'તલ', 'સોયાબીન', 'ચણા', 'ધાણા', 'વરિયાળી', 'બાજરી', 'લસણ']
+    : ['Groundnut', 'Cotton', 'Cumin', 'Wheat', 'Onion', 'Sesame', 'Soybean', 'Chickpeas', 'Coriander', 'Fennel', 'Millet', 'Garlic'];
 
   const tractorOperations = [
-    { name: 'દાંતી', desc: 'ખેડ / દાંતી' },
-    { name: 'રાંપ', desc: 'રાંપ હાંકવી' },
-    { name: 'માઢ', desc: 'માઢ વાળવી' },
-    { name: 'સાવડા', desc: 'સાવડા હાંકવા' },
-    { name: 'માંડવી પાડવા', desc: 'ડીગર / પાળા' },
-    { name: 'રોટાવેટર', desc: 'જમીન સમથળ' },
-    { name: 'થ્રેસર', desc: 'પાક કાઢવો' },
-    { name: 'ટ્રોલી ભાડું', desc: 'માલ પરિવહન' },
+    { name: language === 'gu' ? 'દાંતી' : 'Tillage', desc: language === 'gu' ? 'ખેડ / દાંતી' : 'Tillage' },
+    { name: language === 'gu' ? 'રાંપ' : 'Ploughing', desc: language === 'gu' ? 'રાંપ હાંકવી' : 'Ploughing' },
+    { name: language === 'gu' ? 'માઢ' : 'Bed Making', desc: language === 'gu' ? 'માઢ વાળવી' : 'Bed making' },
+    { name: language === 'gu' ? 'સાવડા' : 'Ridges', desc: language === 'gu' ? 'સાવડા હાંકવા' : 'Furrows/Ridges' },
+    { name: language === 'gu' ? 'માંડવી પાડવા' : 'Digging', desc: language === 'gu' ? 'ડીગર / પાળા' : 'Digging' },
+    { name: language === 'gu' ? 'રોટાવેટર' : 'Rotavator', desc: language === 'gu' ? 'જમીન સમથળ' : 'Leveling' },
+    { name: language === 'gu' ? 'થ્રેસર' : 'Thresher', desc: language === 'gu' ? 'પાક કાઢવો' : 'Threshing' },
+    { name: language === 'gu' ? 'ટ્રોલી ભાડું' : 'Trolley Transport', desc: language === 'gu' ? 'માલ પરિવહન' : 'Transport' },
   ];
 
   const expenseCategories = [
-    { key: 'fertilizer', label: '🌱 ખાતર (Fertilizer)', defaultTitle: 'ખાતર ખરીદી', defaultRate: '1350', defaultQty: '5' },
-    { key: 'medicine', label: '🧪 દવા / સ્પ્રે (Pesticide)', defaultTitle: 'દવા છંટકાવ', defaultRate: '1200', defaultQty: '3' },
-    { key: 'labour', label: '👷 મજૂરી (Labour)', defaultTitle: 'ખેતી મજૂરી', defaultRate: '400', defaultQty: '10' },
-    { key: 'seeds', label: '🌾 બિયારણ (Seeds)', defaultTitle: 'બિયારણ ખરીદી', defaultRate: '800', defaultQty: '4' },
-    { key: 'diesel', label: '⛽ ડીઝલ / પાણી (Diesel)', defaultTitle: 'ડીઝલ ખર્ચ', defaultRate: '95', defaultQty: '30' },
-    { key: 'other', label: '📝 અન્ય ખર્ચ (Other)', defaultTitle: 'અન્ય ખેતી ખર્ચ', defaultRate: '500', defaultQty: '1' },
+    { key: 'fertilizer', label: language === 'gu' ? '🌱 ખાતર (Fertilizer)' : '🌱 Fertilizer', defaultTitle: language === 'gu' ? 'ખાતર ખરીદી' : 'Fertilizer Purchase', defaultRate: '1350', defaultQty: '5' },
+    { key: 'medicine', label: language === 'gu' ? '🧪 દવા / સ્પ્રે (Pesticide)' : '🧪 Pesticides/Spray', defaultTitle: language === 'gu' ? 'દવા છંટકાવ' : 'Pesticide Spray', defaultRate: '1200', defaultQty: '3' },
+    { key: 'labour', label: language === 'gu' ? '👷 મજૂરી (Labour)' : '👷 Farm Labour', defaultTitle: language === 'gu' ? 'ખેતી મજૂરી' : 'Farm Labour', defaultRate: '400', defaultQty: '10' },
+    { key: 'seeds', label: language === 'gu' ? '🌾 બિયારણ (Seeds)' : '🌾 Seeds', defaultTitle: language === 'gu' ? 'બિયારણ ખરીદી' : 'Seed Purchase', defaultRate: '800', defaultQty: '4' },
+    { key: 'diesel', label: language === 'gu' ? '⛽ ડીઝલ / પાણી (Diesel)' : '⛽ Diesel/Fuel', defaultTitle: language === 'gu' ? 'ડીઝલ ખર્ચ' : 'Diesel Expense', defaultRate: '95', defaultQty: '30' },
+    { key: 'other', label: language === 'gu' ? '📝 અન્ય ખર્ચ (Other)' : '📝 Other Farm Expense', defaultTitle: language === 'gu' ? 'અન્ય ખેતી ખર્ચ' : 'Other Farm Expense', defaultRate: '500', defaultQty: '1' },
   ];
 
   useEffect(() => {
