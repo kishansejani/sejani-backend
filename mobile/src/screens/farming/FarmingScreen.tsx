@@ -93,6 +93,7 @@ export const FarmingScreen: React.FC = () => {
 
   // 1. Crop Production Modal States
   const [prodModalVisible, setProdModalVisible] = useState(false);
+  const [editingProdId, setEditingProdId] = useState<number | null>(null);
   const [cropName, setCropName] = useState('મગફળી');
   const [quantity, setQuantity] = useState('20');
   const [unit, setUnit] = useState<'khandi' | 'man' | 'kg' | 'quintal' | 'ton'>('khandi');
@@ -103,6 +104,7 @@ export const FarmingScreen: React.FC = () => {
 
   // 2. Tractor Multi-Operation Modal States
   const [tractorModalVisible, setTractorModalVisible] = useState(false);
+  const [editingTractorId, setEditingTractorId] = useState<number | null>(null);
   const [tractorCategory, setTractorCategory] = useState<'customer' | 'self'>('customer');
   const [customerName, setCustomerName] = useState('રામભાઈ પટેલ');
   const [customerPhone, setCustomerPhone] = useState('');
@@ -120,6 +122,7 @@ export const FarmingScreen: React.FC = () => {
 
   // 3. Farming Multi-Expense Modal States
   const [expModalVisible, setExpModalVisible] = useState(false);
+  const [editingExpId, setEditingExpId] = useState<number | null>(null);
   const [expDate, setExpDate] = useState(new Date().toISOString().split('T')[0]);
   const [savingExp, setSavingExp] = useState(false);
 
@@ -335,7 +338,53 @@ export const FarmingScreen: React.FC = () => {
     liveKgWeight = numQty * 100;
   }
 
-  // Save Crop Production
+  // Open Edit Handlers
+  const handleOpenEditProd = (prod: any) => {
+    setEditingProdId(prod.id);
+    setCropName(prod.crop_name_gu || 'મગફળી');
+    setQuantity(String(prod.quantity || '20'));
+    setUnit(prod.unit || 'khandi');
+    setRatePerUnit(String(prod.rate_per_unit || '28000'));
+    setBuyerName(prod.buyer_name || '');
+    setSaleDate(prod.sale_date || new Date().toISOString().split('T')[0]);
+    setProdModalVisible(true);
+  };
+
+  const handleOpenEditTractor = (tw: any) => {
+    setEditingTractorId(tw.id);
+    setTractorCategory(tw.work_category || 'customer');
+    setCustomerName(tw.customer_name || '');
+    setCustomerPhone(tw.customer_phone || '');
+    setCalcBasis(tw.calc_basis || 'vigha');
+    setCommonVigha(String(tw.units_count || '10'));
+    setCommonRate(String(tw.rate_per_unit || '350'));
+    setTractorDate(tw.work_date || new Date().toISOString().split('T')[0]);
+    setTractorNotes(tw.notes || '');
+    setSelectedOpsMap({
+      [tw.operation_type]: {
+        trips: tw.trips_count || 1,
+        units: tw.units_count || 10,
+        rate: tw.rate_per_unit || 350,
+      },
+    });
+    setTractorModalVisible(true);
+  };
+
+  const handleOpenEditExpense = (exp: any) => {
+    setEditingExpId(exp.id);
+    setExpDate(exp.expense_date || new Date().toISOString().split('T')[0]);
+    setSelectedExpMap({
+      [exp.expense_type || 'other']: {
+        title: exp.title_gu || '',
+        qty: String(exp.quantity_or_hours || '1'),
+        rate: String(exp.unit_rate || exp.amount),
+        amount: String(exp.amount || '0'),
+      },
+    });
+    setExpModalVisible(true);
+  };
+
+  // Save Crop Production (Create or Update)
   const handleSaveProduction = async () => {
     if (!cropName.trim() || !numQty || !numRate) {
       alert('કૃપા કરીને પાકનું નામ, જથ્થો અને ભાવ દાખલ કરો.');
@@ -344,21 +393,26 @@ export const FarmingScreen: React.FC = () => {
 
     setSavingProd(true);
     try {
-      const res = await api.post('/farming/production', {
+      const payload = {
         crop_name_gu: cropName.trim(),
         quantity: numQty,
         unit: unit,
         rate_per_unit: numRate,
         buyer_name: buyerName.trim() || null,
         sale_date: saleDate,
-      });
+      };
 
-      if (res.data?.production) {
-        setProdModalVisible(false);
-        setActiveTab('production');
-        await fetchFarmingData();
-        showToast(`✅ ${cropName} નો હિસાબ ₹${liveTotalCropAmount.toLocaleString('en-IN')} સાચવી લીધો.`);
+      if (editingProdId) {
+        await api.put(`/farming/production/${editingProdId}`, payload);
+      } else {
+        await api.post('/farming/production', payload);
       }
+
+      setProdModalVisible(false);
+      setEditingProdId(null);
+      setActiveTab('production');
+      await fetchFarmingData();
+      showToast(editingProdId ? `✅ ${cropName} નો હિસાબ સુધારી લીધો.` : `✅ ${cropName} નો હિસાબ ₹${liveTotalCropAmount.toLocaleString('en-IN')} સાચવી લીધો.`);
     } catch (err: any) {
       alert(err.response?.data?.message || 'સેવ કરવામાં ભૂલ આવી.');
     } finally {
@@ -366,7 +420,7 @@ export const FarmingScreen: React.FC = () => {
     }
   };
 
-  // Save Multiple Tractor Works in Batch
+  // Save Tractor Works (Create or Update)
   const handleSaveTractorWork = async () => {
     if (selectedOpsKeys.length === 0) {
       alert('કૃપા કરીને ઓછામાં ઓછું ૧ કામ (દા.ત. દાંતી, રાંપ) પસંદ કરો.');
@@ -377,9 +431,10 @@ export const FarmingScreen: React.FC = () => {
     try {
       const finalCustomerName = tractorCategory === 'customer' ? (customerName.trim() || 'ગ્રાહક') : 'પોતાનું ખેતર';
 
-      for (const opName of selectedOpsKeys) {
+      if (editingTractorId && selectedOpsKeys.length === 1) {
+        const opName = selectedOpsKeys[0];
         const cfg = selectedOpsMap[opName];
-        await api.post('/tractor-works', {
+        await api.put(`/tractor-works/${editingTractorId}`, {
           work_category: tractorCategory,
           customer_name: finalCustomerName,
           customer_phone: customerPhone.trim() || null,
@@ -391,14 +446,31 @@ export const FarmingScreen: React.FC = () => {
           work_date: tractorDate,
           notes: tractorNotes.trim() || null,
         });
+      } else {
+        for (const opName of selectedOpsKeys) {
+          const cfg = selectedOpsMap[opName];
+          await api.post('/tractor-works', {
+            work_category: tractorCategory,
+            customer_name: finalCustomerName,
+            customer_phone: customerPhone.trim() || null,
+            operation_type: opName,
+            trips_count: cfg.trips || 1,
+            calc_basis: calcBasis || 'vigha',
+            units_count: cfg.units || 10,
+            rate_per_unit: cfg.rate || 350,
+            work_date: tractorDate,
+            notes: tractorNotes.trim() || null,
+          });
+        }
       }
 
       setTractorModalVisible(false);
+      setEditingTractorId(null);
       setSelectedCustomerFilter('all');
       setActiveTab('tractor');
       await fetchFarmingData();
 
-      showToast(`✅ ટ્રેક્ટરના ${selectedOpsKeys.length} કામો (કુલ ₹${multiTractorGrandTotal.toLocaleString('en-IN')}) લિસ્ટમાં ઉમેરાઈ ગયા!`);
+      showToast(editingTractorId ? '✅ ટ્રેક્ટર હિસાબ સફળતાપૂર્વક સુધારી દીધો!' : `✅ ટ્રેક્ટરના ${selectedOpsKeys.length} કામો (કુલ ₹${multiTractorGrandTotal.toLocaleString('en-IN')}) ઉમેરાઈ ગયા!`);
     } catch (err: any) {
       console.error('Tractor save error:', err);
       alert('ભૂલ: ' + (err.response?.data?.message || 'ટ્રેક્ટર હિસાબ સેવ કરવામાં ભૂલ આવી.'));
@@ -407,7 +479,7 @@ export const FarmingScreen: React.FC = () => {
     }
   };
 
-  // Save Multiple Farming Expenses in Batch
+  // Save Farming Expenses (Create or Update)
   const handleSaveMultipleExpenses = async () => {
     if (selectedExpKeys.length === 0) {
       alert('કૃપા કરીને ઓછામાં ઓછો ૧ ખર્ચ પસંદ કરો.');
@@ -416,9 +488,10 @@ export const FarmingScreen: React.FC = () => {
 
     setSavingExp(true);
     try {
-      for (const key of selectedExpKeys) {
+      if (editingExpId && selectedExpKeys.length === 1) {
+        const key = selectedExpKeys[0];
         const exp = selectedExpMap[key];
-        await api.post('/farming/expense', {
+        await api.put(`/farming/expense/${editingExpId}`, {
           expense_type: key,
           title_gu: exp.title.trim() || 'ખેતી ખર્ચ',
           amount: parseFloat(exp.amount) || 0,
@@ -426,13 +499,26 @@ export const FarmingScreen: React.FC = () => {
           unit_rate: parseFloat(exp.rate) || null,
           expense_date: expDate,
         });
+      } else {
+        for (const key of selectedExpKeys) {
+          const exp = selectedExpMap[key];
+          await api.post('/farming/expense', {
+            expense_type: key,
+            title_gu: exp.title.trim() || 'ખેતી ખર્ચ',
+            amount: parseFloat(exp.amount) || 0,
+            quantity_or_hours: parseFloat(exp.qty) || null,
+            unit_rate: parseFloat(exp.rate) || null,
+            expense_date: expDate,
+          });
+        }
       }
 
       setExpModalVisible(false);
+      setEditingExpId(null);
       setActiveTab('expense');
       await fetchFarmingData();
 
-      showToast(`✅ ખેતીના ${selectedExpKeys.length} ખર્ચાઓ (કુલ ₹${multiExpGrandTotal.toLocaleString('en-IN')}) સેવ થઈ ગયા!`);
+      showToast(editingExpId ? '✅ ખેતી ખર્ચ સફળતાપૂર્વક સુધારી દીધો!' : `✅ ખેતીના ${selectedExpKeys.length} ખર્ચાઓ (કુલ ₹${multiExpGrandTotal.toLocaleString('en-IN')}) સેવ થઈ ગયા!`);
     } catch (err: any) {
       alert(err.response?.data?.message || 'ખર્ચ સેવ કરવામાં ભૂલ આવી.');
     } finally {
@@ -467,6 +553,22 @@ export const FarmingScreen: React.FC = () => {
         await api.delete(`/farming/expense/${id}`);
         await fetchFarmingData();
         showToast('🗑️ ખર્ચ રેકોર્ડ ડિલીટ કર્યો.');
+      } catch (e) {
+        console.warn('Delete error:', e);
+      }
+    }
+  };
+
+  const handleDeleteProduction = async (id: number) => {
+    const confirmed = Platform.OS === 'web'
+      ? window.confirm('શું તમે આ પાક ઉત્પાદન રેકોર્ડ ડિલીટ કરવા માંગો છો?')
+      : true;
+
+    if (confirmed) {
+      try {
+        await api.delete(`/farming/production/${id}`);
+        await fetchFarmingData();
+        showToast('🗑️ પાક ઉત્પાદન રેકોર્ડ ડિલીટ કર્યો.');
       } catch (e) {
         console.warn('Delete error:', e);
       }
@@ -870,13 +972,22 @@ export const FarmingScreen: React.FC = () => {
 
                     <View style={styles.itemFooter}>
                       <Text style={styles.ownerText}>🔒 Tractor Record #{tw.id}</Text>
-                      <TouchableOpacity
-                        style={styles.delBtn}
-                        onPress={() => handleDeleteTractorWork(tw.id)}
-                      >
-                        <Trash2 size={14} color={Colors.danger} style={{ marginRight: 4 }} />
-                        <Text style={styles.delBtnText}>{language === 'gu' ? 'ડિલીટ' : 'Delete'}</Text>
-                      </TouchableOpacity>
+                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <TouchableOpacity
+                          style={styles.editBtn}
+                          onPress={() => handleOpenEditTractor(tw)}
+                        >
+                          <Edit3 size={14} color={Colors.primary} style={{ marginRight: 4 }} />
+                          <Text style={styles.editBtnText}>{language === 'gu' ? 'સુધારો' : 'Edit'}</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={styles.delBtn}
+                          onPress={() => handleDeleteTractorWork(tw.id)}
+                        >
+                          <Trash2 size={14} color={Colors.danger} style={{ marginRight: 4 }} />
+                          <Text style={styles.delBtnText}>{language === 'gu' ? 'ડિલીટ' : 'Delete'}</Text>
+                        </TouchableOpacity>
+                      </View>
                     </View>
                   </Card>
                 ))}
@@ -935,6 +1046,26 @@ export const FarmingScreen: React.FC = () => {
                     <View style={styles.calcRow}>
                       <Text style={styles.calcLabel}>{language === 'gu' ? 'કિલોમાં વજન:' : 'Weight in KG:'}</Text>
                       <Text style={styles.calcVal}>{prod.equivalent_kg ? `${Number(prod.equivalent_kg).toLocaleString('en-IN')} KG` : '-'}</Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.itemFooter}>
+                    <Text style={styles.ownerText}>🔒 Crop Record #{prod.id}</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                      <TouchableOpacity
+                        style={styles.editBtn}
+                        onPress={() => handleOpenEditProd(prod)}
+                      >
+                        <Edit3 size={14} color={Colors.primary} style={{ marginRight: 4 }} />
+                        <Text style={styles.editBtnText}>{language === 'gu' ? 'સુધારો' : 'Edit'}</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.delBtn}
+                        onPress={() => handleDeleteProduction(prod.id)}
+                      >
+                        <Trash2 size={14} color={Colors.danger} style={{ marginRight: 4 }} />
+                        <Text style={styles.delBtnText}>{language === 'gu' ? 'ડિલીટ' : 'Delete'}</Text>
+                      </TouchableOpacity>
                     </View>
                   </View>
                 </Card>
@@ -2136,6 +2267,36 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: Colors.textMuted,
     fontWeight: '600',
+  },
+  editBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    marginRight: 8,
+    backgroundColor: '#EFF6FF',
+    borderRadius: 6,
+  },
+  editBtnText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: Colors.primary,
+  },
+  miniEditBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#EFF6FF',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
+    marginRight: 8,
+  },
+  miniEditBtnText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: Colors.primary,
   },
   delBtn: {
     flexDirection: 'row',

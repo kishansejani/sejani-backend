@@ -44,6 +44,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/family', [FamilyController::class, 'index']);
     Route::get('/family/members/{userId}', [FamilyController::class, 'memberDetails']);
     Route::post('/family/add-member', [FamilyController::class, 'addMember']);
+    Route::post('/family/members', [FamilyController::class, 'addMember']);
+    Route::delete('/family/members/{id}', [FamilyController::class, 'deleteMember']);
 
     // Personal Records (Strict User Ownership Vault)
     Route::apiResource('personal-records', PersonalRecordController::class);
@@ -51,18 +53,22 @@ Route::middleware('auth:sanctum')->group(function () {
     // Farming & Calculation Engine (Multi-unit: Khandi, Man, KG, Quintal)
     Route::get('/farming/summary', [FarmingController::class, 'getSummary']);
     Route::post('/farming/production', [FarmingController::class, 'storeProduction']);
-    Route::post('/farming/expense', [FarmingController::class, 'storeExpense']);
+    Route::put('/farming/production/{id}', [FarmingController::class, 'updateProduction']);
     Route::delete('/farming/production/{id}', [FarmingController::class, 'deleteProduction']);
+    Route::post('/farming/expense', [FarmingController::class, 'storeExpense']);
+    Route::put('/farming/expense/{id}', [FarmingController::class, 'updateExpense']);
     Route::delete('/farming/expense/{id}', [FarmingController::class, 'deleteExpense']);
 
     // Tractor Operations & Custom Work Billing (દાંતી, રાંપ, માઢ, સાવડા)
     Route::get('/tractor-works', [TractorWorkController::class, 'index']);
     Route::post('/tractor-works', [TractorWorkController::class, 'store']);
+    Route::put('/tractor-works/{id}', [TractorWorkController::class, 'update']);
     Route::delete('/tractor-works/{id}', [TractorWorkController::class, 'destroy']);
 
     // Tasks & Time-based Alerts / Reminders
     Route::get('/tasks', [TaskController::class, 'index']);
     Route::post('/tasks', [TaskController::class, 'store']);
+    Route::put('/tasks/{id}', [TaskController::class, 'update']);
     Route::patch('/tasks/{id}/toggle', [TaskController::class, 'toggleComplete']);
     Route::delete('/tasks/{id}', [TaskController::class, 'destroy']);
 

@@ -103,6 +103,38 @@ class TractorWorkController extends Controller
         ], 201);
     }
 
+    public function update(Request $request, int $id)
+    {
+        $work = TractorWork::where('user_id', Auth::id())->findOrFail($id);
+
+        $validated = $request->validate([
+            'work_category' => 'nullable|string|in:customer,self',
+            'customer_name' => 'nullable|string',
+            'customer_phone' => 'nullable|string',
+            'operation_type' => 'nullable|string',
+            'trips_count' => 'nullable|integer|min:1',
+            'calc_basis' => 'nullable|string|in:vigha,hours,trips',
+            'units_count' => 'nullable|numeric|min:0.01',
+            'rate_per_unit' => 'nullable|numeric|min:0.01',
+            'payment_status' => 'nullable|string|in:paid,pending,partial',
+            'paid_amount' => 'nullable|numeric',
+            'work_date' => 'nullable|date',
+            'notes' => 'nullable|string',
+        ]);
+
+        $trips = isset($validated['trips_count']) ? (int)$validated['trips_count'] : $work->trips_count;
+        $units = isset($validated['units_count']) ? (float)$validated['units_count'] : $work->units_count;
+        $rate = isset($validated['rate_per_unit']) ? (float)$validated['rate_per_unit'] : $work->rate_per_unit;
+        $totalAmount = $trips * $units * $rate;
+
+        $work->update(array_merge($validated, ['total_amount' => $totalAmount]));
+
+        return response()->json([
+            'message' => 'ટ્રેક્ટર હિસાબ સફળતાપૂર્વક સુધારી દીધો.',
+            'work' => $work,
+        ]);
+    }
+
     public function destroy(int $id)
     {
         $work = TractorWork::where('user_id', Auth::id())->findOrFail($id);

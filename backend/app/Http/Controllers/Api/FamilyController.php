@@ -21,10 +21,31 @@ class FamilyController extends Controller
         $user = $request->user();
         $family = $user->families()->first();
 
+        // If user was attached to old demo PATEL2026 family, purge it and create fresh personal family
+        if ($family && $family->family_code === 'PATEL2026') {
+            FamilyMember::where('family_id', $family->id)->delete();
+            $family->delete();
+            $family = null;
+        }
+
         if (!$family) {
-            return response()->json([
-                'family' => null,
-                'members' => [],
+            $familyNameGu = ($user->name ?? 'મારો') . ' પરિવાર';
+            $familyNameEn = ($user->name ?? 'My') . ' Family';
+            $familyCode = 'FAM' . rand(10000, 99999);
+
+            $family = Family::create([
+                'family_name_gu' => $familyNameGu,
+                'family_name_en' => $familyNameEn,
+                'family_code' => $familyCode,
+                'head_user_id' => $user->id,
+                'description_gu' => 'અંગત અને પારિવારિક ખાતું',
+            ]);
+
+            FamilyMember::create([
+                'family_id' => $family->id,
+                'user_id' => $user->id,
+                'relation_title_gu' => 'મોભી',
+                'is_admin' => true,
             ]);
         }
 
@@ -140,5 +161,36 @@ class FamilyController extends Controller
             'message' => 'નવા પરિવાર સભ્ય સફળતાપૂર્વક ઉમેરાઈ ગયા!',
             'member' => new FamilyMemberResource($newMember->load(['user.profile', 'family'])),
         ], 201);
+    }
+
+    /**
+     * Delete / Remove a member from family
+     */
+    public function deleteMember(Request $request, int $id)
+    {
+        $currentUser = $request->user();
+        $family = $currentUser->families()->first();
+
+        if (!$family) {
+            return response()->json(['message' => 'પરિવાર મળ્યો નહીં.'], 404);
+        }
+
+        $member = FamilyMember::where('family_id', $family->id)
+            ->where('id', $id)
+            ->first();
+
+        if (!$member) {
+            // Also try by user_id
+            $member = FamilyMember::where('family_id', $family->id)
+                ->where('user_id', $id)
+                ->first();
+        }
+
+        if ($member) {
+            $member->delete();
+            return response()->json(['message' => 'સભ્ય પરિવારમાંથી રદ કર્યો.']);
+        }
+
+        return response()->json(['message' => 'સભ્ય મળ્યો નહીં.'], 404);
     }
 }

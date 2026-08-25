@@ -174,6 +174,94 @@ class FarmingController extends Controller
     }
 
     /**
+     * Update Production
+     */
+    public function updateProduction(Request $request, int $id)
+    {
+        $prod = FarmProduction::where('user_id', Auth::id())->findOrFail($id);
+
+        $validated = $request->validate([
+            'crop_name_gu' => 'nullable|string',
+            'quantity' => 'nullable|numeric|min:0.01',
+            'unit' => 'nullable|string|in:khandi,man,kg,quintal,ton',
+            'rate_per_unit' => 'nullable|numeric|min:0.01',
+            'buyer_name' => 'nullable|string',
+            'sale_date' => 'nullable|date',
+            'notes' => 'nullable|string',
+        ]);
+
+        $quantity = isset($validated['quantity']) ? (float)$validated['quantity'] : $prod->quantity;
+        $rate = isset($validated['rate_per_unit']) ? (float)$validated['rate_per_unit'] : $prod->rate_per_unit;
+        $unit = $validated['unit'] ?? $prod->unit;
+        $totalAmount = $quantity * $rate;
+
+        $equivalentMan = 0;
+        $equivalentKg = 0;
+        switch ($unit) {
+            case 'khandi':
+                $equivalentMan = $quantity * 20;
+                $equivalentKg = $quantity * 400;
+                break;
+            case 'man':
+                $equivalentMan = $quantity;
+                $equivalentKg = $quantity * 20;
+                break;
+            case 'quintal':
+                $equivalentMan = $quantity * 5;
+                $equivalentKg = $quantity * 100;
+                break;
+            case 'ton':
+                $equivalentMan = $quantity * 50;
+                $equivalentKg = $quantity * 1000;
+                break;
+            case 'kg':
+            default:
+                $equivalentMan = $quantity / 20;
+                $equivalentKg = $quantity;
+                break;
+        }
+
+        $prod->update(array_merge($validated, [
+            'quantity' => $quantity,
+            'rate_per_unit' => $rate,
+            'unit' => $unit,
+            'total_amount' => $totalAmount,
+            'equivalent_man' => $equivalentMan,
+            'equivalent_kg' => $equivalentKg,
+        ]));
+
+        return response()->json([
+            'message' => 'પાક ઉત્પાદન રેકોર્ડ સુધારી દીધો.',
+            'production' => $prod,
+        ]);
+    }
+
+    /**
+     * Update Expense
+     */
+    public function updateExpense(Request $request, int $id)
+    {
+        $exp = FarmExpense::where('user_id', Auth::id())->findOrFail($id);
+
+        $validated = $request->validate([
+            'expense_type' => 'nullable|string|in:labour,tractor,fertilizer,medicine,seeds,diesel,other',
+            'title_gu' => 'nullable|string',
+            'amount' => 'nullable|numeric|min:0.01',
+            'quantity_or_hours' => 'nullable|numeric',
+            'unit_rate' => 'nullable|numeric',
+            'expense_date' => 'nullable|date',
+            'notes' => 'nullable|string',
+        ]);
+
+        $exp->update($validated);
+
+        return response()->json([
+            'message' => 'ખેતી ખર્ચ રેકોર્ડ સુધારી દીધો.',
+            'expense' => $exp,
+        ]);
+    }
+
+    /**
      * Delete Production
      */
     public function deleteProduction(int $id)

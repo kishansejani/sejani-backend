@@ -27,6 +27,7 @@ import {
   Calendar,
   Plus,
   Lock,
+  Trash2,
 } from 'lucide-react-native';
 import { Colors } from '../../theme/colors';
 import { Header } from '../../components/Header';
@@ -36,8 +37,10 @@ import { Button } from '../../components/Button';
 import api from '../../api/client';
 import { FamilyMember } from '../../types';
 import { useLanguage } from '../../context/LanguageContext';
+import { useAuth } from '../../context/AuthContext';
 
 export const FamilyDirectoryScreen: React.FC = () => {
+  const { user } = useAuth();
   const { language, t } = useLanguage();
   const [members, setMembers] = useState<FamilyMember[]>([]);
   const [familyName, setFamilyName] = useState<string>('મારો પરિવાર');
@@ -130,6 +133,22 @@ export const FamilyDirectoryScreen: React.FC = () => {
       Alert.alert(t('error', 'ભૂલ'), err.response?.data?.message || (language === 'gu' ? 'સભ્ય ઉમેરવામાં ભૂલ આવી.' : 'Failed to add member.'));
     } finally {
       setSavingMember(false);
+    }
+  };
+
+  const handleDeleteMember = async (memberId: number, memberName: string) => {
+    const confirmed = Platform.OS === 'web'
+      ? window.confirm(`શું તમે ${memberName} ને પરિવારમાંથી દૂર કરવા માંગો છો?`)
+      : true;
+
+    if (confirmed) {
+      try {
+        await api.delete(`/family/members/${memberId}`);
+        fetchFamily();
+        Alert.alert(t('success', 'સફળ'), language === 'gu' ? 'સભ્ય પરિવારમાંથી રદ થયો.' : 'Member removed from family.');
+      } catch (err: any) {
+        Alert.alert(t('error', 'ભૂલ'), err.response?.data?.message || 'ડિલીટ કરવામાં ભૂલ આવી.');
+      }
     }
   };
 
@@ -251,14 +270,26 @@ export const FamilyDirectoryScreen: React.FC = () => {
                   </View>
                 </View>
 
-                {/* Call Action Button */}
-                <TouchableOpacity
-                  style={styles.callBtn}
-                  onPress={() => handleCall(member.phone)}
-                  activeOpacity={0.7}
-                >
-                  <Phone size={18} color={Colors.success} />
-                </TouchableOpacity>
+                {/* Actions: Call & Delete */}
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <TouchableOpacity
+                    style={styles.callBtn}
+                    onPress={() => handleCall(member.phone)}
+                    activeOpacity={0.7}
+                  >
+                    <Phone size={18} color={Colors.success} />
+                  </TouchableOpacity>
+
+                  {member.user_id !== user?.id && (
+                    <TouchableOpacity
+                      style={[styles.callBtn, { backgroundColor: '#FEF2F2', borderColor: '#FECACA', borderWidth: 1, marginLeft: 8 }]}
+                      onPress={() => handleDeleteMember(member.id, member.profile?.full_name_gu || member.name)}
+                      activeOpacity={0.7}
+                    >
+                      <Trash2 size={16} color={Colors.danger} />
+                    </TouchableOpacity>
+                  )}
+                </View>
               </View>
             </Card>
           ))

@@ -32,6 +32,7 @@ import {
   FileText,
   AlertCircle,
   ChevronDown,
+  Edit3,
 } from 'lucide-react-native';
 import { Colors } from '../../theme/colors';
 import { Header } from '../../components/Header';
@@ -59,6 +60,7 @@ export const TasksScreen: React.FC = () => {
   const [isListening, setIsListening] = useState(false);
 
   // Add Task Form States
+  const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState<'payment_collect' | 'bill_pay' | 'farming_work' | 'vehicle' | 'general'>('payment_collect');
   const [amount, setAmount] = useState('');
@@ -123,6 +125,17 @@ export const TasksScreen: React.FC = () => {
     );
   };
 
+  const handleOpenEditTask = (t: any) => {
+    setEditingTaskId(t.id);
+    setTitle(t.title || '');
+    setCategory(t.category || 'general');
+    setAmount(t.amount ? String(t.amount) : '');
+    setTaskDate(t.task_date || new Date().toISOString().split('T')[0]);
+    setTaskTime(t.task_time || '10:00 AM');
+    setNotes(t.notes || '');
+    setModalVisible(true);
+  };
+
   const handleSaveTask = async () => {
     if (!title.trim()) {
       alert('કૃપા કરીને કામ / એલર્ટનું નામ દાખલ કરો.');
@@ -131,14 +144,21 @@ export const TasksScreen: React.FC = () => {
 
     setSavingTask(true);
     try {
-      const res = await api.post('/tasks', {
+      const payload = {
         title: title.trim(),
         category,
         amount: amount ? parseFloat(amount) : null,
         task_date: taskDate,
         task_time: taskTime,
         notes: notes.trim() || null,
-      });
+      };
+
+      let res;
+      if (editingTaskId) {
+        res = await api.put(`/tasks/${editingTaskId}`, payload);
+      } else {
+        res = await api.post('/tasks', payload);
+      }
 
       if (res.data?.task) {
         // Parse reminder target date and time accurately
@@ -149,21 +169,15 @@ export const TasksScreen: React.FC = () => {
 
           if (cleanTime.includes('PM') || cleanTime.includes('AM')) {
             const isPM = cleanTime.includes('PM');
-            const timePart = cleanTime.replace('AM', '').replace('PM', '').trim();
-            const parts = timePart.split(':');
-            let h = parseInt(parts[0] || '10', 10);
-            const m = parseInt(parts[1] || '0', 10);
-            if (isPM && h < 12) h += 12;
-            if (!isPM && h === 12) h = 0;
-            hours = h;
-            minutes = m;
-          } else if (cleanTime.includes(':')) {
-            const parts = cleanTime.split(':');
-            hours = parseInt(parts[0] || '10', 10);
-            minutes = parseInt(parts[1] || '0', 10);
+            const timeDigits = cleanTime.replace('AM', '').replace('PM', '').trim();
+            const parts = timeDigits.split(':');
+            hours = parseInt(parts[0], 10);
+            minutes = parts.length > 1 ? parseInt(parts[1], 10) : 0;
+            if (isPM && hours < 12) hours += 12;
+            if (!isPM && hours === 12) hours = 0;
           }
 
-          const targetDateTime = new Date(`${taskDate}T00:00:00`);
+          const targetDateTime = new Date(taskDate);
           targetDateTime.setHours(hours, minutes, 0, 0);
 
           const bodyText = amount 
@@ -179,7 +193,7 @@ export const TasksScreen: React.FC = () => {
 
           // Instant feedback
           await notificationService.sendInstantNotification(
-            '✅ નવું એલર્ટ સેટ થયું',
+            editingTaskId ? '✅ એલર્ટ અપડેટ થયું' : '✅ નવું એલર્ટ સેટ થયું',
             `"${title.trim()}" - ${taskDate} ના રોજ નોટિફિકેશન આવશે.`
           );
         } catch (notifErr) {
@@ -187,11 +201,12 @@ export const TasksScreen: React.FC = () => {
         }
 
         setModalVisible(false);
+        setEditingTaskId(null);
         setTitle('');
         setAmount('');
         setNotes('');
         await fetchTasks();
-        showToast(`✅ "${title.trim()}" નું એલર્ટ સેટ થઈ ગયું!`);
+        showToast(editingTaskId ? `✅ "${title.trim()}" અપડેટ થઈ ગયું!` : `✅ "${title.trim()}" નું એલર્ટ સેટ થઈ ગયું!`);
       }
     } catch (err: any) {
       alert(err.response?.data?.message || 'સેવ કરવામાં ભૂલ આવી.');
@@ -328,12 +343,20 @@ export const TasksScreen: React.FC = () => {
                       ) : null}
                     </View>
 
-                    <TouchableOpacity
-                      style={styles.delBtn}
-                      onPress={() => handleDeleteTask(t.id)}
-                    >
-                      <Trash2 size={16} color={Colors.danger} />
-                    </TouchableOpacity>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                      <TouchableOpacity
+                        style={[styles.delBtn, { marginRight: 6 }]}
+                        onPress={() => handleOpenEditTask(t)}
+                      >
+                        <Edit3 size={16} color={Colors.primary} />
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.delBtn}
+                        onPress={() => handleDeleteTask(t.id)}
+                      >
+                        <Trash2 size={16} color={Colors.danger} />
+                      </TouchableOpacity>
+                    </View>
                   </View>
                 </Card>
               );
