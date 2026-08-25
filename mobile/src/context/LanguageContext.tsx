@@ -33,6 +33,56 @@ const translations: Record<string, Record<Language, string>> = {
     gu: 'જય શ્રી કૃષ્ણ',
     en: 'Jai Shree Krishna',
   },
+  dashboard: {
+    gu: 'ડેશબોર્ડ',
+    en: 'Dashboard',
+  },
+
+  // Common Actions & States
+  save: {
+    gu: 'સાચવો',
+    en: 'Save',
+  },
+  cancel: {
+    gu: 'રદ કરો',
+    en: 'Cancel',
+  },
+  delete: {
+    gu: 'ડિલીટ કરો',
+    en: 'Delete',
+  },
+  edit: {
+    gu: 'સુધારો',
+    en: 'Edit',
+  },
+  close: {
+    gu: 'બંધ કરો',
+    en: 'Close',
+  },
+  success: {
+    gu: 'સફળ',
+    en: 'Success',
+  },
+  error: {
+    gu: 'ભૂલ',
+    en: 'Error',
+  },
+  attention: {
+    gu: 'ધ્યાન આપો',
+    en: 'Attention',
+  },
+  loading: {
+    gu: 'લોડ થઈ રહ્યું છે...',
+    en: 'Loading...',
+  },
+  search: {
+    gu: 'શોધો...',
+    en: 'Search...',
+  },
+  notAdded: {
+    gu: 'ઉમેરેલ નથી',
+    en: 'Not Added',
+  },
 
   // Tabs
   tabHome: {
@@ -60,38 +110,62 @@ const translations: Record<string, Record<Language, string>> = {
     en: 'Profile',
   },
 
-  // Login & Register
-  login: {
-    gu: 'પ્રવેશ કરો (Login)',
-    en: 'Login',
+  // Login & Register Screen
+  loginTab: {
+    gu: '🔑 લૉગિન (Login)',
+    en: '🔑 Login',
   },
-  register: {
-    gu: 'નવું ખાતું બનાવો (Register)',
-    en: 'Create Account (Register)',
+  registerTab: {
+    gu: '📝 નવું રજિસ્ટ્રેશન (Register)',
+    en: '📝 Register',
+  },
+  loginHeading: {
+    gu: 'પરિવાર પોર્ટલમાં પ્રવેશ',
+    en: 'Sign in to Family Portal',
+  },
+  registerHeading: {
+    gu: 'પરિવારમાં નવું ખાતું બનાવો',
+    en: 'Create Family Account',
   },
   loginDesc: {
     gu: 'તમારો રજિસ્ટર્ડ મોબાઈલ નંબર અને પાસવર્ડ દાખલ કરો',
     en: 'Enter your registered mobile number & password',
   },
   registerDesc: {
-    gu: 'પરિવારના નવા સભ્ય તરીકે જોડાવા વિગત ભરો',
+    gu: 'પરિવારના સભ્ય તરીકે જોડાવા વિગત ભરો',
     en: 'Fill in details to join as a family member',
   },
   mobileNumber: {
-    gu: 'મોબાઈલ નંબર',
-    en: 'Mobile Number',
+    gu: 'મોબાઈલ નંબર *',
+    en: 'Mobile Number *',
+  },
+  mobilePlaceholder: {
+    gu: '૧૦ આંકડાનો મોબાઈલ નંબર દાખલ કરો',
+    en: 'Enter 10-digit mobile number',
   },
   fullName: {
-    gu: 'પૂરું નામ',
-    en: 'Full Name',
+    gu: 'પૂરું નામ *',
+    en: 'Full Name *',
+  },
+  namePlaceholder: {
+    gu: 'તમારું પૂરું નામ દાખલ કરો',
+    en: 'Enter your full name',
   },
   relationshipRole: {
-    gu: 'સંબંધ / રોલ',
-    en: 'Relationship / Role',
+    gu: 'પરિવારમાં સંબંધ / હોદ્દો (પસંદગી મુજબ)',
+    en: 'Role / Relationship in Family (Optional)',
   },
   password: {
-    gu: 'પાસવર્ડ',
-    en: 'Password',
+    gu: 'પાસવર્ડ *',
+    en: 'Password *',
+  },
+  passwordPlaceholder: {
+    gu: 'તમારો પાસવર્ડ દાખલ કરો',
+    en: 'Enter your password',
+  },
+  regPasswordPlaceholder: {
+    gu: 'ઓછામાં ઓછો ૬ અક્ષરનો સુરક્ષિત પાસવર્ડ',
+    en: 'Minimum 6 characters secure password',
   },
   loginBtn: {
     gu: 'લૉગિન કરો',
@@ -101,12 +175,210 @@ const translations: Record<string, Record<Language, string>> = {
     gu: 'એકાઉન્ટ બનાવો & લૉગિન થાઓ',
     en: 'Create Account & Login',
   },
-  logout: {
-    gu: 'લૉગ આઉટ',
-    en: 'Logout',
+  switchToRegister: {
+    gu: 'હજી સુધી ખાતું નથી? નવું રજિસ્ટ્રેશન કરો ➔',
+    en: "Don't have an account? Register now ➔",
+  },
+  switchToLogin: {
+    gu: 'પહેલેથી એકાઉન્ટ છે? લૉગિન કરો ➔',
+    en: 'Already have an account? Login ➔',
   },
 
-  // Farming & Finance
+  // Family Roles & Relationships
+  roleMember: {
+    gu: 'સભ્ય',
+    en: 'Member',
+  },
+  roleFather: {
+    gu: 'પિતા',
+    en: 'Father',
+  },
+  roleMother: {
+    gu: 'માતા',
+    en: 'Mother',
+  },
+  roleSon: {
+    gu: 'પુત્ર',
+    en: 'Son',
+  },
+  roleDaughter: {
+    gu: 'પુત્રી',
+    en: 'Daughter',
+  },
+  roleGrandfather: {
+    gu: 'દાદા / મોભી',
+    en: 'Grandfather / Head',
+  },
+  roleGrandmother: {
+    gu: 'દાદી',
+    en: 'Grandmother',
+  },
+  roleUncle: {
+    gu: 'કાકા',
+    en: 'Uncle',
+  },
+  roleAunt: {
+    gu: 'કાકી',
+    en: 'Aunt',
+  },
+  roleBrother: {
+    gu: 'ભાઈ',
+    en: 'Brother',
+  },
+  roleSister: {
+    gu: 'બહેન',
+    en: 'Sister',
+  },
+  roleFamilyHead: {
+    gu: 'પરિવાર મોભી',
+    en: 'Family Head',
+  },
+
+  // Profile Screen
+  myProfileTitle: {
+    gu: 'મારી પ્રોફાઇલ & સેટિંગ્સ',
+    en: 'My Profile & Settings',
+  },
+  myProfileSubtitle: {
+    gu: 'સુરક્ષિત એકાઉન્ટ માહિતી',
+    en: 'Secure Account Information',
+  },
+  editProfile: {
+    gu: 'પ્રોફાઇલ વિગતો સુધારો',
+    en: 'Edit Profile Details',
+  },
+  selectLanguage: {
+    gu: 'ભાષા પસંદ કરો (Language)',
+    en: 'Select Language',
+  },
+  personalDetails: {
+    gu: 'પર્સનલ વિગતો',
+    en: 'Personal Details',
+  },
+  bloodGroup: {
+    gu: 'બ્લડ ગ્રૂપ (Blood Group)',
+    en: 'Blood Group',
+  },
+  bloodPlaceholder: {
+    gu: 'દા.ત. B+, O+, AB+',
+    en: 'e.g. B+, O+, AB+',
+  },
+  occupation: {
+    gu: 'વ્યવસાય / કામગીરી',
+    en: 'Occupation / Work',
+  },
+  occupationPlaceholder: {
+    gu: 'દા.ત. બિઝનેસ, નોકરી, ખેતી...',
+    en: 'e.g. Business, Job, Farming...',
+  },
+  emergencyContact: {
+    gu: 'ઇમરજન્સી સંપર્ક નંબર',
+    en: 'Emergency Contact',
+  },
+  emergencyPlaceholder: {
+    gu: 'મોબાઈલ નંબર',
+    en: 'Mobile Number',
+  },
+  bio: {
+    gu: 'પરિચય (Bio)',
+    en: 'Bio / Notes',
+  },
+  bioPlaceholder: {
+    gu: 'તમારા વિશે થોડી માહિતી...',
+    en: 'A few words about you...',
+  },
+  securityPrivacy: {
+    gu: 'સુરક્ષા & ડેટા પ્રાઈવસી',
+    en: 'Security & Data Privacy',
+  },
+  tokenSecTitle: {
+    gu: 'Laravel Sanctum Token Encryption',
+    en: 'Laravel Sanctum Token Encryption',
+  },
+  tokenSecDesc: {
+    gu: 'તમારું ટોકન મોબાઈલના હાર્ડવેર સ્ટોરેજમાં સિક્યોર છે.',
+    en: 'Your token is encrypted in device hardware storage.',
+  },
+  authSecTitle: {
+    gu: 'Strict 403 Forbidden Authorization',
+    en: 'Strict 403 Forbidden Authorization',
+  },
+  authSecDesc: {
+    gu: 'કોઈ અન્ય વ્યક્તિ તમારો ડેટા એક્સેસ કરી શકતી નથી.',
+    en: 'Strict authorization ensures only you can access your data.',
+  },
+  changePassword: {
+    gu: 'પાસવર્ડ બદલો (Change Password)',
+    en: 'Change Password',
+  },
+  currentPassword: {
+    gu: 'હાલનો પાસવર્ડ (Current Password) *',
+    en: 'Current Password *',
+  },
+  newPassword: {
+    gu: 'નવો પાસવર્ડ (New Password) *',
+    en: 'New Password *',
+  },
+  confirmPassword: {
+    gu: 'નવો પાસવર્ડ ફરી દાખલ કરો (Confirm) *',
+    en: 'Confirm New Password *',
+  },
+  currentPwdPlaceholder: {
+    gu: 'હાલનો પાસવર્ડ દાખલ કરો',
+    en: 'Enter current password',
+  },
+  newPwdPlaceholder: {
+    gu: 'ઓછામાં ઓછો ૬ અક્ષરનો પાસવર્ડ',
+    en: 'Minimum 6 characters password',
+  },
+  confirmPwdPlaceholder: {
+    gu: 'નવો પાસવર્ડ કન્ફર્મ કરો',
+    en: 'Confirm new password',
+  },
+  logout: {
+    gu: 'લૉગ આઉટ (Sign Out)',
+    en: 'Sign Out (Logout)',
+  },
+  logoutConfirmTitle: {
+    gu: 'લૉગ આઉટ',
+    en: 'Sign Out',
+  },
+  logoutConfirmMsg: {
+    gu: 'શું તમે ખરેખર લૉગ આઉટ કરવા માંગો છો?',
+    en: 'Are you sure you want to sign out?',
+  },
+
+  // Family Directory Screen
+  familyDirectory: {
+    gu: 'પરિવાર ડિરેક્ટરી',
+    en: 'Family Directory',
+  },
+  familyCode: {
+    gu: 'ફેમિલી કોડ:',
+    en: 'Family Code:',
+  },
+  totalMembers: {
+    gu: 'કુલ સભ્યો',
+    en: 'Total Members',
+  },
+  searchFamilyPlaceholder: {
+    gu: 'નામ, સંબંધ કે બ્લડ ગ્રૂપથી શોધો...',
+    en: 'Search by name, relation or blood group...',
+  },
+  memberDetailModalTitle: {
+    gu: 'સભ્યની સંપૂર્ણ વિગત',
+    en: 'Member Full Profile',
+  },
+
+  // Farming Screen
+  farmingTitle: {
+    gu: 'ખેતીવાડી અને પાક હિસાબ',
+    en: 'Farming & Crop Ledger',
+  },
+  farmingSubtitle: {
+    gu: 'સ્માર્ટ ખેતી વહીખાતું અને હિસાબ',
+    en: 'Smart Farm Accounting & Records',
+  },
   totalRevenue: {
     gu: 'કુલ પાક આવક',
     en: 'Total Crop Revenue',
@@ -135,33 +407,79 @@ const translations: Record<string, Record<Language, string>> = {
     gu: '📄 ખેતી PDF',
     en: '📄 Farming PDF',
   },
-
-  // Tasks & Alarms
-  paymentCollection: {
-    gu: '💰 પેમેન્ટ લેવાનું',
-    en: '💰 Payment Due',
+  cropTab: {
+    gu: '🌾 પાક & વેચાણ',
+    en: '🌾 Crops & Sales',
   },
-  billPayment: {
-    gu: '⚡ બિલ ભરવાનું',
-    en: '⚡ Bill Payment',
+  expenseTab: {
+    gu: '💸 ખર્ચ વિગત',
+    en: '💸 Farm Expenses',
   },
-  farmingWork: {
-    gu: '🌾 ખેતી કામ',
-    en: '🌾 Farm Task',
-  },
-  vehicleInsurance: {
-    gu: '🚗 વાહન/વીમો',
-    en: '🚗 Vehicle/Insurance',
+  tractorTab: {
+    gu: '🚜 ટ્રેક્ટર હિસાબ',
+    en: '🚜 Tractor Ledger',
   },
 
-  // Language Switch
-  languageToggle: {
-    gu: 'English',
-    en: 'ગુજરાતી',
+  // Alerts Screen
+  alertsTitle: {
+    gu: 'એલર્ટ્સ & રિમાઇન્ડર',
+    en: 'Alerts & Reminders',
   },
-  selectLanguage: {
-    gu: 'ભાષા પસંદ કરો (Language)',
-    en: 'Select Language',
+  alertsSubtitle: {
+    gu: 'સમયસર નોટિફિકેશન અને એલાર્મ',
+    en: 'Timely Notifications & Alarms',
+  },
+  addAlert: {
+    gu: '+ નવો એલર્ટ',
+    en: '+ New Alert',
+  },
+  pendingAlerts: {
+    gu: 'બાકી એલર્ટ્સ',
+    en: 'Pending Alerts',
+  },
+  completedAlerts: {
+    gu: 'પૂર્ણ થયેલ',
+    en: 'Completed',
+  },
+
+  // Vault / Personal Records
+  vaultTitle: {
+    gu: 'મારી ડિજિટલ તિજોરી',
+    en: 'My Digital Vault',
+  },
+  vaultSubtitle: {
+    gu: 'સુરક્ષિત અંગત દસ્તાવેજો & નોંધ',
+    en: 'Encrypted Personal Documents & Notes',
+  },
+  addRecord: {
+    gu: '+ નવી નોંધ ઉમેરો',
+    en: '+ Add New Record',
+  },
+  filterAll: {
+    gu: 'બધા',
+    en: 'All',
+  },
+  filterExpense: {
+    gu: 'આર્થિક/ખર્ચ',
+    en: 'Financial/Expense',
+  },
+  filterDoc: {
+    gu: 'દસ્તાવેજ',
+    en: 'Documents',
+  },
+  filterMedical: {
+    gu: 'તબીબી/મેડિકલ',
+    en: 'Medical',
+  },
+  filterNotes: {
+    gu: 'નોંધ/ડાયરી',
+    en: 'Notes/Diary',
+  },
+
+  // Keyboard Dismiss
+  dismissKeyboard: {
+    gu: '⬇️ કીબોર્ડ બંધ કરો (Done ✕)',
+    en: '⬇️ Dismiss Keyboard (Done ✕)',
   },
 };
 

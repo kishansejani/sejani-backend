@@ -32,10 +32,13 @@ import { Button } from '../../components/Button';
 import api from '../../api/client';
 import { FamilyMember } from '../../types';
 
+import { useLanguage } from '../../context/LanguageContext';
+
 export const FamilyDirectoryScreen: React.FC = () => {
+  const { language, t } = useLanguage();
   const [members, setMembers] = useState<FamilyMember[]>([]);
   const [familyName, setFamilyName] = useState<string>('શ્રી સેજાણી પરિવાર');
-  const [familyCode, setFamilyCode] = useState<string>('PATEL2026');
+  const [familyCode, setFamilyCode] = useState<string>('SEJANI2026');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -70,7 +73,7 @@ export const FamilyDirectoryScreen: React.FC = () => {
 
   const handleCall = (phone: string) => {
     Linking.openURL(`tel:${phone}`).catch(() => {
-      Alert.alert('કૉલ', `મોબાઈલ નંબર: ${phone}`);
+      Alert.alert(language === 'gu' ? 'કૉલ' : 'Call', `${language === 'gu' ? 'મોબાઈલ નંબર' : 'Phone'}: ${phone}`);
     });
   };
 
@@ -85,22 +88,22 @@ export const FamilyDirectoryScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <Header
-        title="પરિવાર ડિરેક્ટરી"
-        subtitle={`${familyName} • ${members.length} સભ્યો`}
+        title={t('familyDirectory', 'પરિવાર ડિરેક્ટરી')}
+        subtitle={`${familyName} • ${members.length} ${language === 'gu' ? 'સભ્યો' : 'Members'}`}
       />
 
       {/* Search & Stats Bar */}
       <View style={styles.subBar}>
         <View style={styles.familyCodeBanner}>
-          <Text style={styles.codeText}>ફેમિલી કોડ: <Text style={{ fontWeight: '900', color: Colors.accentDark }}>{familyCode}</Text></Text>
-          <Badge label={`કુલ સભ્યો: ${members.length}`} variant="accent" />
+          <Text style={styles.codeText}>{t('familyCode', 'ફેમિલી કોડ:')} <Text style={{ fontWeight: '900', color: Colors.accentDark }}>{familyCode}</Text></Text>
+          <Badge label={`${t('totalMembers', 'કુલ સભ્યો')}: ${members.length}`} variant="accent" />
         </View>
 
         <View style={styles.searchBox}>
           <Search size={18} color={Colors.textMuted} style={{ marginRight: 8 }} />
           <TextInput
             style={styles.searchInput}
-            placeholder="નામ, સંબંધ (દા.ત. કાકા) કે બ્લડ ગ્રૂપથી શોધો..."
+            placeholder={t('searchFamilyPlaceholder', 'નામ, સંબંધ કે બ્લડ ગ્રૂપથી શોધો...')}
             placeholderTextColor={Colors.textMuted}
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -123,8 +126,8 @@ export const FamilyDirectoryScreen: React.FC = () => {
         ) : filteredMembers.length === 0 ? (
           <Card style={styles.emptyCard}>
             <Users size={40} color={Colors.textMuted} style={{ marginBottom: 8 }} />
-            <Text style={styles.emptyTitle}>કોઈ સભ્ય મળ્યા નહીં</Text>
-            <Text style={styles.emptyDesc}>શોધ શબ્દ બદલીને ફરી પ્રયાસ કરો.</Text>
+            <Text style={styles.emptyTitle}>{language === 'gu' ? 'કોઈ સભ્ય મળ્યા નહીં' : 'No members found'}</Text>
+            <Text style={styles.emptyDesc}>{language === 'gu' ? 'શોધ શબ્દ બદલીને ફરી પ્રયાસ કરો.' : 'Try changing search query.'}</Text>
           </Card>
         ) : (
           filteredMembers.map((member) => (
@@ -152,12 +155,12 @@ export const FamilyDirectoryScreen: React.FC = () => {
                       {member.profile?.full_name_gu || member.name}
                     </Text>
                     {member.is_admin ? (
-                      <Badge label="એડમિન" variant="accent" style={{ marginLeft: 6 }} />
+                      <Badge label={language === 'gu' ? 'એડમિન' : 'Admin'} variant="accent" style={{ marginLeft: 6 }} />
                     ) : null}
                   </View>
 
                   <Text style={styles.relationTitle}>
-                    {member.relation_title_gu || 'પરિવાર સભ્ય'}
+                    {member.relation_title_gu || t('roleMember', 'સભ્ય')}
                   </Text>
 
                   <View style={styles.metaRow}>
@@ -204,7 +207,7 @@ export const FamilyDirectoryScreen: React.FC = () => {
             {selectedMember && (
               <>
                 <View style={styles.modalHeader}>
-                  <Text style={styles.modalHeading}>સભ્ય વિગત</Text>
+                  <Text style={styles.modalHeading}>{t('memberDetailModalTitle', 'સભ્યની સંપૂર્ણ વિગત')}</Text>
                   <TouchableOpacity
                     onPress={() => setSelectedMember(null)}
                     style={styles.closeBtn}
@@ -227,7 +230,7 @@ export const FamilyDirectoryScreen: React.FC = () => {
                       {selectedMember.profile?.full_name_gu || selectedMember.name}
                     </Text>
                     <Badge
-                      label={selectedMember.relation_title_gu}
+                      label={selectedMember.relation_title_gu || t('roleMember', 'સભ્ય')}
                       variant="primary"
                       style={{ marginTop: 6 }}
                     />
@@ -235,13 +238,13 @@ export const FamilyDirectoryScreen: React.FC = () => {
 
                   <View style={styles.detailsGrid}>
                     <View style={styles.detailItem}>
-                      <Text style={styles.detailLabel}>મોબાઈલ નંબર</Text>
+                      <Text style={styles.detailLabel}>{t('mobileNumber', 'મોબાઈલ નંબર')}</Text>
                       <Text style={styles.detailValue}>{selectedMember.phone}</Text>
                     </View>
 
                     {selectedMember.profile?.blood_group ? (
                       <View style={styles.detailItem}>
-                        <Text style={styles.detailLabel}>બ્લડ ગ્રૂપ</Text>
+                        <Text style={styles.detailLabel}>{t('bloodGroup', 'બ્લડ ગ્રૂપ')}</Text>
                         <Text style={[styles.detailValue, { color: Colors.danger, fontWeight: '800' }]}>
                           🩸 {selectedMember.profile.blood_group}
                         </Text>
@@ -250,28 +253,28 @@ export const FamilyDirectoryScreen: React.FC = () => {
 
                     {selectedMember.profile?.birth_date ? (
                       <View style={styles.detailItem}>
-                        <Text style={styles.detailLabel}>જન્મ તારીખ</Text>
+                        <Text style={styles.detailLabel}>{language === 'gu' ? 'જન્મ તારીખ' : 'Birth Date'}</Text>
                         <Text style={styles.detailValue}>{selectedMember.profile.birth_date}</Text>
                       </View>
                     ) : null}
 
                     {selectedMember.profile?.occupation_gu ? (
                       <View style={styles.detailItem}>
-                        <Text style={styles.detailLabel}>વ્યવસાય / કામગીરી</Text>
+                        <Text style={styles.detailLabel}>{t('occupation', 'વ્યવસાય / કામગીરી')}</Text>
                         <Text style={styles.detailValue}>{selectedMember.profile.occupation_gu}</Text>
                       </View>
                     ) : null}
 
                     {selectedMember.profile?.bio_gu ? (
                       <View style={[styles.detailItem, { width: '100%' }]}>
-                        <Text style={styles.detailLabel}>પરિચય</Text>
+                        <Text style={styles.detailLabel}>{t('bio', 'પરિચય')}</Text>
                         <Text style={styles.detailValue}>{selectedMember.profile.bio_gu}</Text>
                       </View>
                     ) : null}
                   </View>
 
                   <Button
-                    title={`કૉલ કરો (${selectedMember.phone})`}
+                    title={`${language === 'gu' ? 'કૉલ કરો' : 'Call'} (${selectedMember.phone})`}
                     variant="primary"
                     icon={<Phone size={18} color="#FFFFFF" />}
                     onPress={() => handleCall(selectedMember.phone)}

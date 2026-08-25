@@ -27,33 +27,71 @@ export const Button: React.FC<ButtonProps> = ({
     switch (variant) {
       case 'accent':
         return {
-          btn: { backgroundColor: Colors.accentDark },
+          btn: {
+            backgroundColor: Colors.accentDark,
+            elevation: 3,
+            shadowColor: Colors.shadowColor,
+            shadowOffset: { width: 0, height: 3 },
+            shadowOpacity: 0.15,
+            shadowRadius: 5,
+          },
           txt: { color: '#FFFFFF' },
         };
       case 'success':
         return {
-          btn: { backgroundColor: '#059669' },
+          btn: {
+            backgroundColor: '#059669',
+            elevation: 3,
+            shadowColor: Colors.shadowColor,
+            shadowOffset: { width: 0, height: 3 },
+            shadowOpacity: 0.15,
+            shadowRadius: 5,
+          },
           txt: { color: '#FFFFFF' },
         };
       case 'outline':
         return {
-          btn: { backgroundColor: 'transparent', borderWidth: 1.5, borderColor: Colors.primary },
+          btn: {
+            backgroundColor: 'transparent',
+            borderWidth: 1.5,
+            borderColor: Colors.primary,
+            elevation: 0,
+            shadowOpacity: 0,
+          },
           txt: { color: Colors.primary },
         };
       case 'danger':
         return {
-          btn: { backgroundColor: Colors.danger },
+          btn: {
+            backgroundColor: Colors.danger,
+            elevation: 3,
+            shadowColor: Colors.shadowColor,
+            shadowOffset: { width: 0, height: 3 },
+            shadowOpacity: 0.15,
+            shadowRadius: 5,
+          },
           txt: { color: '#FFFFFF' },
         };
       case 'ghost':
         return {
-          btn: { backgroundColor: 'transparent' },
+          btn: {
+            backgroundColor: 'transparent',
+            elevation: 0,
+            shadowOpacity: 0,
+          },
           txt: { color: Colors.primary },
         };
       case 'primary':
       default:
         return {
-          btn: { backgroundColor: Colors.primary },
+          btn: {
+            backgroundColor: Colors.primary,
+            elevation: 3,
+            shadowColor: Colors.shadowColor,
+            shadowOffset: { width: 0, height: 3 },
+            shadowOpacity: 0.15,
+            shadowRadius: 5,
+          },
           txt: { color: '#FFFFFF' },
         };
     }
@@ -77,7 +115,7 @@ export const Button: React.FC<ButtonProps> = ({
         <ActivityIndicator color={st.txt.color} size="small" />
       ) : (
         <View style={styles.contentRow}>
-          {icon ? <View style={{ marginRight: 8 }}>{icon}</View> : null}
+          {icon ? <View style={{ marginRight: 8, backgroundColor: 'transparent' }}>{icon}</View> : null}
           <Text style={[styles.text, st.txt, textStyle]}>
             {title}
           </Text>
@@ -96,21 +134,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 20,
     marginVertical: 6,
-    shadowColor: Colors.shadowColor,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    elevation: 4,
   },
   contentRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'transparent',
   },
   text: {
     fontSize: 16,
     fontWeight: '800',
     letterSpacing: 0.3,
+    backgroundColor: 'transparent',
   },
   disabled: {
     opacity: 0.6,

@@ -21,6 +21,7 @@ import {
   Briefcase,
   Lock,
   X,
+  HeartHandshake,
 } from 'lucide-react-native';
 import { Colors } from '../../theme/colors';
 import { Header } from '../../components/Header';
@@ -29,16 +30,30 @@ import { Badge } from '../../components/Badge';
 import { Button } from '../../components/Button';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
-import { Globe } from 'lucide-react-native';
 import api from '../../api/client';
 
+const ROLE_OPTIONS = [
+  { gu: 'સભ્ય', en: 'Member' },
+  { gu: 'પિતા', en: 'Father' },
+  { gu: 'માતા', en: 'Mother' },
+  { gu: 'પુત્ર', en: 'Son' },
+  { gu: 'પુત્રી', en: 'Daughter' },
+  { gu: 'દાદા / મોભી', en: 'Grandfather / Head' },
+  { gu: 'દાદી', en: 'Grandmother' },
+  { gu: 'કાકા', en: 'Uncle' },
+  { gu: 'કાકી', en: 'Aunt' },
+  { gu: 'ભાઈ', en: 'Brother' },
+  { gu: 'બહેન', en: 'Sister' },
+];
+
 export const ProfileScreen: React.FC = () => {
-  const { user, logout, updateProfileState, refreshUser } = useAuth();
+  const { user, logout, updateProfileState } = useAuth();
   const { language, setLanguage, t } = useLanguage();
 
   // Edit Profile States
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [fullNameGu, setFullNameGu] = useState(user?.profile?.full_name_gu || user?.name || '');
+  const [relationTitleGu, setRelationTitleGu] = useState(user?.family?.relation_title_gu || 'સભ્ય');
   const [bloodGroup, setBloodGroup] = useState(user?.profile?.blood_group || '');
   const [occupationGu, setOccupationGu] = useState(user?.profile?.occupation_gu || '');
   const [emergencyContact, setEmergencyContact] = useState(user?.profile?.emergency_contact || '');
@@ -54,7 +69,7 @@ export const ProfileScreen: React.FC = () => {
 
   const handleUpdateProfile = async () => {
     if (!fullNameGu.trim()) {
-      Alert.alert('ધ્યાન આપો', 'કૃપા કરીને પૂરું નામ દાખલ કરો.');
+      Alert.alert(t('attention', 'ધ્યાન આપો'), language === 'gu' ? 'કૃપા કરીને પૂરું નામ દાખલ કરો.' : 'Please enter your full name.');
       return;
     }
 
@@ -62,6 +77,7 @@ export const ProfileScreen: React.FC = () => {
     try {
       const res = await api.post('/profile', {
         full_name_gu: fullNameGu.trim(),
+        relation_title_gu: relationTitleGu.trim() || 'સભ્ય',
         blood_group: bloodGroup.trim(),
         occupation_gu: occupationGu.trim(),
         emergency_contact: emergencyContact.trim(),
@@ -70,11 +86,11 @@ export const ProfileScreen: React.FC = () => {
 
       if (res.data?.user) {
         updateProfileState(res.data.user);
-        Alert.alert('સફળ', 'તમારી પ્રોફાઇલ સફળતાપૂર્વક અપડેટ થઈ.');
+        Alert.alert(t('success', 'સફળ'), language === 'gu' ? 'તમારી પ્રોફાઇલ સફળતાપૂર્વક અપડેટ થઈ.' : 'Profile updated successfully.');
         setEditModalVisible(false);
       }
     } catch (err: any) {
-      Alert.alert('ભૂલ', err.response?.data?.message || 'પ્રોફાઇલ અપડેટ કરવામાં ભૂલ આવી.');
+      Alert.alert(t('error', 'ભૂલ'), err.response?.data?.message || (language === 'gu' ? 'પ્રોફાઇલ અપડેટ કરવામાં ભૂલ આવી.' : 'Failed to update profile.'));
     } finally {
       setSavingProfile(false);
     }
@@ -82,12 +98,17 @@ export const ProfileScreen: React.FC = () => {
 
   const handleChangePassword = async () => {
     if (!currentPassword || !newPassword) {
-      Alert.alert('ધ્યાન આપો', 'બધા ફીલ્ડ્સ ભરવા જરૂરી છે.');
+      Alert.alert(t('attention', 'ધ્યાન આપો'), language === 'gu' ? 'બધા ફીલ્ડ્સ ભરવા જરૂરી છે.' : 'All fields are required.');
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      Alert.alert('ધ્યાન આપો', 'નવો પાસવર્ડ અને કન્ફર્મ પાસવર્ડ સરખા નથી.');
+      Alert.alert(t('attention', 'ધ્યાન આપો'), language === 'gu' ? 'નવો પાસવર્ડ અને કન્ફર્મ પાસવર્ડ સરખા નથી.' : 'New password and confirm password do not match.');
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      Alert.alert(t('attention', 'ધ્યાન આપો'), language === 'gu' ? 'પાસવર્ડ ઓછામાં ઓછો ૬ અક્ષરનો હોવો જોઈએ.' : 'Password must be at least 6 characters long.');
       return;
     }
 
@@ -99,13 +120,13 @@ export const ProfileScreen: React.FC = () => {
         new_password_confirmation: confirmPassword,
       });
 
-      Alert.alert('સફળ', res.data?.message || 'પાસવર્ડ બદલાઈ ગયો છે.');
+      Alert.alert(t('success', 'સફળ'), res.data?.message || (language === 'gu' ? 'પાસવર્ડ બદલાઈ ગયો છે.' : 'Password updated successfully.'));
       setPwdModalVisible(false);
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
     } catch (err: any) {
-      Alert.alert('ભૂલ', err.response?.data?.message || 'પાસવર્ડ બદલવામાં ભૂલ આવી.');
+      Alert.alert(t('error', 'ભૂલ'), err.response?.data?.message || (language === 'gu' ? 'પાસવર્ડ બદલવામાં ભૂલ આવી.' : 'Failed to change password.'));
     } finally {
       setSavingPwd(false);
     }
@@ -113,12 +134,12 @@ export const ProfileScreen: React.FC = () => {
 
   const handleLogout = () => {
     Alert.alert(
-      'લૉગ આઉટ',
-      'શું તમે ખરેખર લૉગ આઉટ કરવા માંગો છો?',
+      t('logoutConfirmTitle', 'લૉગ આઉટ'),
+      t('logoutConfirmMsg', 'શું તમે ખરેખર લૉગ આઉટ કરવા માંગો છો?'),
       [
-        { text: 'ના (Cancel)', style: 'cancel' },
+        { text: t('cancel', 'ના (Cancel)'), style: 'cancel' },
         {
-          text: 'હા, લૉગ આઉટ',
+          text: t('logout', 'હા, લૉગ આઉટ'),
           style: 'destructive',
           onPress: () => logout(),
         },
@@ -129,8 +150,8 @@ export const ProfileScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <Header
-        title="મારી પ્રોફાઇલ & સેટિંગ્સ"
-        subtitle="સુરક્ષિત એકાઉન્ટ માહિતી"
+        title={t('myProfileTitle', 'મારી પ્રોફાઇલ & સેટિંગ્સ')}
+        subtitle={t('myProfileSubtitle', 'સુરક્ષિત એકાઉન્ટ માહિતી')}
       />
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
@@ -150,12 +171,12 @@ export const ProfileScreen: React.FC = () => {
               <Text style={styles.userPhone}>📱 {user?.phone}</Text>
               <View style={styles.badgeRow}>
                 <Badge
-                  label={user?.family?.relation_title_gu || 'સભ્ય'}
+                  label={user?.family?.relation_title_gu || t('roleMember', 'સભ્ય')}
                   variant="primary"
                   style={{ marginRight: 6 }}
                 />
-                {user?.role === 'head' || user?.role === 'admin' ? (
-                  <Badge label="પરિવાર એડમિન" variant="accent" />
+                {user?.role === 'head' || user?.role === 'admin' || user?.family?.is_admin ? (
+                  <Badge label={language === 'gu' ? 'પરિવાર એડમિન' : 'Admin'} variant="accent" />
                 ) : null}
               </View>
             </View>
@@ -167,6 +188,7 @@ export const ProfileScreen: React.FC = () => {
             icon={<Edit3 size={16} color={Colors.primary} />}
             onPress={() => {
               setFullNameGu(user?.profile?.full_name_gu || user?.name || '');
+              setRelationTitleGu(user?.family?.relation_title_gu || 'સભ્ય');
               setBloodGroup(user?.profile?.blood_group || '');
               setOccupationGu(user?.profile?.occupation_gu || '');
               setEmergencyContact(user?.profile?.emergency_contact || '');
@@ -208,11 +230,22 @@ export const ProfileScreen: React.FC = () => {
         <Card style={styles.infoCard}>
           <View style={styles.infoRow}>
             <View style={styles.infoIconLabel}>
+              <HeartHandshake size={16} color={Colors.accentDark} style={{ marginRight: 8 }} />
+              <Text style={styles.infoLabel}>{t('relationshipRole', 'સંબંધ / રોલ')}</Text>
+            </View>
+            <Text style={[styles.infoValue, { color: Colors.primary, fontWeight: '800' }]}>
+              {user?.family?.relation_title_gu || t('roleMember', 'સભ્ય')}
+            </Text>
+          </View>
+          <View style={styles.divider} />
+
+          <View style={styles.infoRow}>
+            <View style={styles.infoIconLabel}>
               <Droplet size={16} color={Colors.danger} style={{ marginRight: 8 }} />
-              <Text style={styles.infoLabel}>બ્લડ ગ્રૂપ</Text>
+              <Text style={styles.infoLabel}>{t('bloodGroup', 'બ્લડ ગ્રૂપ')}</Text>
             </View>
             <Text style={[styles.infoValue, { color: Colors.danger }]}>
-              {user?.profile?.blood_group || 'ઉમેરેલ નથી'}
+              {user?.profile?.blood_group || t('notAdded', 'ઉમેરેલ નથી')}
             </Text>
           </View>
           <View style={styles.divider} />
@@ -220,10 +253,10 @@ export const ProfileScreen: React.FC = () => {
           <View style={styles.infoRow}>
             <View style={styles.infoIconLabel}>
               <Briefcase size={16} color={Colors.textSecondary} style={{ marginRight: 8 }} />
-              <Text style={styles.infoLabel}>વ્યવસાય / કામગીરી</Text>
+              <Text style={styles.infoLabel}>{t('occupation', 'વ્યવસાય / કામગીરી')}</Text>
             </View>
             <Text style={styles.infoValue}>
-              {user?.profile?.occupation_gu || 'ઉમેરેલ નથી'}
+              {user?.profile?.occupation_gu || t('notAdded', 'ઉમેરેલ નથી')}
             </Text>
           </View>
           <View style={styles.divider} />
@@ -231,7 +264,7 @@ export const ProfileScreen: React.FC = () => {
           <View style={styles.infoRow}>
             <View style={styles.infoIconLabel}>
               <Phone size={16} color={Colors.primaryLight} style={{ marginRight: 8 }} />
-              <Text style={styles.infoLabel}>ઇમરજન્સી સંપર્ક</Text>
+              <Text style={styles.infoLabel}>{t('emergencyContact', 'ઇમરજન્સી સંપર્ક')}</Text>
             </View>
             <Text style={styles.infoValue}>
               {user?.profile?.emergency_contact || '9825000001'}
@@ -240,26 +273,26 @@ export const ProfileScreen: React.FC = () => {
         </Card>
 
         {/* Security & System Information */}
-        <Text style={styles.sectionHeader}>સુરક્ષા & ડેટા પ્રાઈવસી (Architecture Status)</Text>
+        <Text style={styles.sectionHeader}>{t('securityPrivacy', 'સુરક્ષા & ડેટા પ્રાઈવસી')}</Text>
         <Card variant="dark" style={styles.securityCard}>
           <View style={styles.secItem}>
             <ShieldCheck size={24} color={Colors.accent} style={{ marginRight: 10, marginTop: 2 }} />
             <View style={styles.secInfo}>
-              <Text style={styles.secTitle}>Laravel Sanctum Token Encryption</Text>
-              <Text style={styles.secDesc}>તમારું ટોકન મોબાઈલના હાર્ડવેર સ્ટોરેજમાં સિક્યોર છે.</Text>
+              <Text style={styles.secTitle}>{t('tokenSecTitle', 'Laravel Sanctum Token Encryption')}</Text>
+              <Text style={styles.secDesc}>{t('tokenSecDesc', 'તમારું ટોકન મોબાઈલના હાર્ડવેર સ્ટોરેજમાં સિક્યોર છે.')}</Text>
             </View>
           </View>
 
           <View style={styles.secItem}>
             <Lock size={22} color="#93C5FD" style={{ marginRight: 10, marginTop: 2 }} />
             <View style={styles.secInfo}>
-              <Text style={styles.secTitle}>Strict 403 Forbidden Authorization</Text>
-              <Text style={styles.secDesc}>User ID: {user?.id} સિવાય કોઈ અન્ય સભ્યનો ડેટા એક્સેસ થઈ શકતો નથી.</Text>
+              <Text style={styles.secTitle}>{t('authSecTitle', 'Strict 403 Forbidden Authorization')}</Text>
+              <Text style={styles.secDesc}>{t('authSecDesc', 'કોઈ અન્ય વ્યક્તિ તમારો ડેટા એક્સેસ કરી શકતી નથી.')}</Text>
             </View>
           </View>
 
           <Button
-            title="પાસવર્ડ બદલો (Change Password)"
+            title={t('changePassword', 'પાસવર્ડ બદલો (Change Password)')}
             variant="accent"
             icon={<Key size={16} color="#FFFFFF" />}
             onPress={() => setPwdModalVisible(true)}
@@ -269,7 +302,7 @@ export const ProfileScreen: React.FC = () => {
 
         {/* Logout Button */}
         <Button
-          title="લૉગ આઉટ (Sign Out)"
+          title={t('logout', 'લૉગ આઉટ (Sign Out)')}
           variant="danger"
           icon={<LogOut size={18} color="#FFFFFF" />}
           onPress={handleLogout}
@@ -282,52 +315,82 @@ export const ProfileScreen: React.FC = () => {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalHeading}>પ્રોફાઇલ વિગતો સુધારો</Text>
+              <Text style={styles.modalHeading}>{t('editProfile', 'પ્રોફાઇલ વિગતો સુધારો')}</Text>
               <TouchableOpacity onPress={() => setEditModalVisible(false)}>
                 <X size={20} color={Colors.textSecondary} />
               </TouchableOpacity>
             </View>
 
             <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
-              <Text style={styles.inputLabel}>પૂરું નામ (ગુજરાતીમાં) *</Text>
+              <Text style={styles.inputLabel}>{t('fullName', 'પૂરું નામ *')}</Text>
               <TextInput
                 style={styles.input}
                 value={fullNameGu}
                 onChangeText={setFullNameGu}
+                placeholder={t('namePlaceholder', 'તમારું પૂરું નામ')}
+                placeholderTextColor={Colors.textMuted}
               />
 
-              <Text style={styles.inputLabel}>બ્લડ ગ્રૂપ (Blood Group)</Text>
+              {/* Role in Family Selector */}
+              <Text style={styles.inputLabel}>{t('relationshipRole', 'પરિવારમાં સંબંધ / હોદ્દો')}</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipScroll}>
+                {ROLE_OPTIONS.map((opt) => {
+                  const label = language === 'gu' ? opt.gu : opt.en;
+                  const isSelected = relationTitleGu === opt.gu;
+                  return (
+                    <TouchableOpacity
+                      key={opt.gu}
+                      style={[styles.roleChip, isSelected && styles.roleChipActive]}
+                      onPress={() => setRelationTitleGu(opt.gu)}
+                    >
+                      <Text style={[styles.roleChipText, isSelected && styles.roleChipTextActive]}>
+                        {label}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+              <TextInput
+                style={[styles.input, { marginTop: 8 }]}
+                value={relationTitleGu}
+                onChangeText={setRelationTitleGu}
+                placeholder={language === 'gu' ? 'અથવા સંબંધ અહીં લખો (દા.ત. પિતા, કાકા...)' : 'Or type relationship here...'}
+                placeholderTextColor={Colors.textMuted}
+              />
+
+              <Text style={styles.inputLabel}>{t('bloodGroup', 'બ્લડ ગ્રૂપ (Blood Group)')}</Text>
               <TextInput
                 style={styles.input}
-                placeholder="દા.ત. B+, O+, AB+"
+                placeholder={t('bloodPlaceholder', 'દા.ત. B+, O+, AB+')}
                 placeholderTextColor={Colors.textMuted}
                 value={bloodGroup}
                 onChangeText={setBloodGroup}
+                autoCapitalize="characters"
               />
 
-              <Text style={styles.inputLabel}>વ્યવસાય / કામગીરી</Text>
+              <Text style={styles.inputLabel}>{t('occupation', 'વ્યવસાય / કામગીરી')}</Text>
               <TextInput
                 style={styles.input}
-                placeholder="દા.ત. સોફ્ટવેર એન્જિનિયર, બિઝનેસ..."
+                placeholder={t('occupationPlaceholder', 'દા.ત. સોફ્ટવેર એન્જિનિયર, બિઝનેસ...')}
                 placeholderTextColor={Colors.textMuted}
                 value={occupationGu}
                 onChangeText={setOccupationGu}
               />
 
-              <Text style={styles.inputLabel}>ઇમરજન્સી સંપર્ક નંબર</Text>
+              <Text style={styles.inputLabel}>{t('emergencyContact', 'ઇમરજન્સી સંપર્ક નંબર')}</Text>
               <TextInput
                 style={styles.input}
-                placeholder="મોબાઈલ નંબર"
+                placeholder={t('emergencyPlaceholder', 'મોબાઈલ નંબર')}
                 placeholderTextColor={Colors.textMuted}
                 keyboardType="phone-pad"
                 value={emergencyContact}
                 onChangeText={setEmergencyContact}
               />
 
-              <Text style={styles.inputLabel}>પરિચય (Bio)</Text>
+              <Text style={styles.inputLabel}>{t('bio', 'પરિચય (Bio)')}</Text>
               <TextInput
                 style={[styles.input, { height: 80, textAlignVertical: 'top' }]}
-                placeholder="તમારા વિશે થોડી માહિતી..."
+                placeholder={t('bioPlaceholder', 'તમારા વિશે થોડી માહિતી...')}
                 placeholderTextColor={Colors.textMuted}
                 multiline
                 value={bioGu}
@@ -336,13 +399,13 @@ export const ProfileScreen: React.FC = () => {
 
               <View style={styles.modalFooter}>
                 <Button
-                  title="રદ કરો"
+                  title={t('cancel', 'રદ કરો')}
                   variant="outline"
                   onPress={() => setEditModalVisible(false)}
                   style={{ flex: 1, marginRight: 8 }}
                 />
                 <Button
-                  title="સાચવો"
+                  title={t('save', 'સાચવો')}
                   variant="primary"
                   loading={savingProfile}
                   onPress={handleUpdateProfile}
@@ -359,38 +422,38 @@ export const ProfileScreen: React.FC = () => {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalHeading}>પાસવર્ડ બદલો</Text>
+              <Text style={styles.modalHeading}>{t('changePassword', 'પાસવર્ડ બદલો')}</Text>
               <TouchableOpacity onPress={() => setPwdModalVisible(false)}>
                 <X size={20} color={Colors.textSecondary} />
               </TouchableOpacity>
             </View>
 
             <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
-              <Text style={styles.inputLabel}>હાલનો પાસવર્ડ (Current Password) *</Text>
+              <Text style={styles.inputLabel}>{t('currentPassword', 'હાલનો પાસવર્ડ (Current Password) *')}</Text>
               <TextInput
                 style={styles.input}
                 secureTextEntry
-                placeholder="હાલનો પાસવર્ડ દાખલ કરો"
+                placeholder={t('currentPwdPlaceholder', 'હાલનો પાસવર્ડ દાખલ કરો')}
                 placeholderTextColor={Colors.textMuted}
                 value={currentPassword}
                 onChangeText={setCurrentPassword}
               />
 
-              <Text style={styles.inputLabel}>નવો પાસવર્ડ (New Password) *</Text>
+              <Text style={styles.inputLabel}>{t('newPassword', 'નવો પાસવર્ડ (New Password) *')}</Text>
               <TextInput
                 style={styles.input}
                 secureTextEntry
-                placeholder="ઓછામાં ઓછો ૬ અક્ષરનો પાસવર્ડ"
+                placeholder={t('newPwdPlaceholder', 'ઓછામાં ઓછો ૬ અક્ષરનો પાસવર્ડ')}
                 placeholderTextColor={Colors.textMuted}
                 value={newPassword}
                 onChangeText={setNewPassword}
               />
 
-              <Text style={styles.inputLabel}>નવો પાસવર્ડ ફરી દાખલ કરો (Confirm) *</Text>
+              <Text style={styles.inputLabel}>{t('confirmPassword', 'નવો પાસવર્ડ ફરી દાખલ કરો (Confirm) *')}</Text>
               <TextInput
                 style={styles.input}
                 secureTextEntry
-                placeholder="નવો પાસવર્ડ કન્ફર્મ કરો"
+                placeholder={t('confirmPwdPlaceholder', 'નવો પાસવર્ડ કન્ફર્મ કરો')}
                 placeholderTextColor={Colors.textMuted}
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
@@ -398,13 +461,13 @@ export const ProfileScreen: React.FC = () => {
 
               <View style={styles.modalFooter}>
                 <Button
-                  title="રદ કરો"
+                  title={t('cancel', 'રદ કરો')}
                   variant="outline"
                   onPress={() => setPwdModalVisible(false)}
                   style={{ flex: 1, marginRight: 8 }}
                 />
                 <Button
-                  title="પાસવર્ડ બદલો"
+                  title={t('save', 'પાસવર્ડ બદલો')}
                   variant="primary"
                   loading={savingPwd}
                   onPress={handleChangePassword}
@@ -467,13 +530,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '800',
     color: Colors.textPrimary,
-    marginHorizontal: 20,
-    marginTop: 20,
+    marginHorizontal: 4,
+    marginTop: 18,
     marginBottom: 8,
   },
   langCard: {
-    marginHorizontal: 20,
     padding: 12,
+    marginBottom: 12,
   },
   langRow: {
     flexDirection: 'row',
@@ -571,7 +634,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface,
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
-    maxHeight: '85%',
+    maxHeight: '88%',
     paddingBottom: 24,
   },
   modalHeader: {
@@ -600,6 +663,32 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 6,
   },
+  chipScroll: {
+    flexDirection: 'row',
+    marginBottom: 6,
+  },
+  roleChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 10,
+    backgroundColor: Colors.surfaceSecondary,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    marginRight: 8,
+  },
+  roleChipActive: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
+  roleChipText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: Colors.textSecondary,
+  },
+  roleChipTextActive: {
+    color: '#FFFFFF',
+    fontWeight: '800',
+  },
   input: {
     backgroundColor: Colors.surfaceSecondary,
     borderRadius: 12,
@@ -613,6 +702,6 @@ const styles = StyleSheet.create({
   modalFooter: {
     flexDirection: 'row',
     marginTop: 20,
-    marginBottom: 20,
+    marginBottom: 24,
   },
 });

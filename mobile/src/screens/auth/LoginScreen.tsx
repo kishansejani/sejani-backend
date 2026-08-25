@@ -20,6 +20,20 @@ import { DismissKeyboardBar } from '../../components/DismissKeyboardBar';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 
+const ROLE_PRESETS = [
+  { gu: 'સભ્ય', en: 'Member' },
+  { gu: 'પિતા', en: 'Father' },
+  { gu: 'માતા', en: 'Mother' },
+  { gu: 'પુત્ર', en: 'Son' },
+  { gu: 'પુત્રી', en: 'Daughter' },
+  { gu: 'દાદા / મોભી', en: 'Grandfather / Head' },
+  { gu: 'દાદી', en: 'Grandmother' },
+  { gu: 'કાકા', en: 'Uncle' },
+  { gu: 'કાકી', en: 'Aunt' },
+  { gu: 'ભાઈ', en: 'Brother' },
+  { gu: 'બહેન', en: 'Sister' },
+];
+
 export const LoginScreen: React.FC = () => {
   const { login, register } = useAuth();
   const { language, toggleLanguage, t } = useLanguage();
@@ -34,15 +48,16 @@ export const LoginScreen: React.FC = () => {
   const [regName, setRegName] = useState('');
   const [regPhone, setRegPhone] = useState('');
   const [regPassword, setRegPassword] = useState('');
+  const [regRelationship, setRegRelationship] = useState('સભ્ય');
   const [showRegPassword, setShowRegPassword] = useState(false);
 
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
     if (!loginInput.trim() || !password) {
-      const msg = 'કૃપા કરીને મોબાઈલ નંબર અને પાસવર્ડ દાખલ કરો.';
+      const msg = language === 'gu' ? 'કૃપા કરીને મોબાઈલ નંબર અને પાસવર્ડ દાખલ કરો.' : 'Please enter mobile number and password.';
       if (Platform.OS === 'web') alert(msg);
-      else Alert.alert('ધ્યાન આપો', msg);
+      else Alert.alert(t('attention', 'ધ્યાન આપો'), msg);
       return;
     }
 
@@ -52,36 +67,36 @@ export const LoginScreen: React.FC = () => {
     setLoading(false);
 
     if (!res.success) {
-      const msg = res.message || 'લૉગિન નિષ્ફળ: પાસવર્ડ કે નંબર ખોટો છે.';
+      const msg = res.message || (language === 'gu' ? 'લૉગિન નિષ્ફળ: પાસવર્ડ કે નંબર ખોટો છે.' : 'Login failed: Invalid credentials.');
       if (Platform.OS === 'web') alert(msg);
-      else Alert.alert('લૉગિન નિષ્ફળ', msg);
+      else Alert.alert(t('error', 'ભૂલ'), msg);
     }
   };
 
   const handleRegister = async () => {
     if (!regName.trim() || !regPhone.trim() || !regPassword) {
-      const msg = 'કૃપા કરીને નામ, મોબાઈલ નંબર અને પાસવર્ડ બધું દાખલ કરો.';
+      const msg = language === 'gu' ? 'કૃપા કરીને નામ, મોબાઈલ નંબર અને પાસવર્ડ દાખલ કરો.' : 'Please fill all required fields.';
       if (Platform.OS === 'web') alert(msg);
-      else Alert.alert('ધ્યાન આપો', msg);
+      else Alert.alert(t('attention', 'ધ્યાન આપો'), msg);
       return;
     }
 
     if (regPassword.length < 6) {
-      const msg = 'પાસવર્ડ ઓછામાં ઓછો ૬ અક્ષરનો હોવો જોઈએ.';
+      const msg = language === 'gu' ? 'પાસવર્ડ ઓછામાં ઓછો ૬ અક્ષરનો હોવો જોઈએ.' : 'Password must be at least 6 characters.';
       if (Platform.OS === 'web') alert(msg);
-      else Alert.alert('ધ્યાન આપો', msg);
+      else Alert.alert(t('attention', 'ધ્યાન આપો'), msg);
       return;
     }
 
     setLoading(true);
     Keyboard.dismiss();
-    const res = await register(regName.trim(), regPhone.trim(), regPassword);
+    const res = await register(regName.trim(), regPhone.trim(), regPassword, regRelationship || 'સભ્ય');
     setLoading(false);
 
     if (!res.success) {
-      const msg = res.message || 'રજિસ્ટ્રેશન નિષ્ફળ રહ્યું.';
+      const msg = res.message || (language === 'gu' ? 'રજિસ્ટ્રેશન નિષ્ફળ રહ્યું.' : 'Registration failed.');
       if (Platform.OS === 'web') alert(msg);
-      else Alert.alert('રજિસ્ટ્રેશન નિષ્ફળ', msg);
+      else Alert.alert(t('error', 'ભૂલ'), msg);
     }
   };
 
@@ -130,7 +145,7 @@ export const LoginScreen: React.FC = () => {
               activeOpacity={0.8}
             >
               <Text style={[styles.modeTabText, authMode === 'login' && styles.modeTabTextActive]}>
-                {language === 'gu' ? '🔑 પ્રવેશ (Login)' : '🔑 Login'}
+                {t('loginTab', '🔑 લૉગિન (Login)')}
               </Text>
             </TouchableOpacity>
 
@@ -140,7 +155,7 @@ export const LoginScreen: React.FC = () => {
               activeOpacity={0.8}
             >
               <Text style={[styles.modeTabText, authMode === 'register' && styles.modeTabTextActive]}>
-                {language === 'gu' ? '📝 નવું એકાઉન્ટ (Register)' : '📝 Register'}
+                {t('registerTab', '📝 નવું રજિસ્ટ્રેશન (Register)')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -149,16 +164,16 @@ export const LoginScreen: React.FC = () => {
           <Card variant="gold" style={styles.formCard}>
             {authMode === 'login' ? (
               <>
-                <Text style={styles.formHeading}>પ્રવેશ કરો (Login)</Text>
-                <Text style={styles.formDesc}>તમારો રજિસ્ટર્ડ મોબાઈલ નંબર અને પાસવર્ડ દાખલ કરો</Text>
+                <Text style={styles.formHeading}>{t('loginHeading', 'પરિવાર પોર્ટલમાં પ્રવેશ')}</Text>
+                <Text style={styles.formDesc}>{t('loginDesc', 'તમારો રજિસ્ટર્ડ મોબાઈલ નંબર અને પાસવર્ડ દાખલ કરો')}</Text>
 
                 {/* Phone Input */}
-                <Text style={styles.inputLabel}>મોબાઈલ નંબર</Text>
+                <Text style={styles.inputLabel}>{t('mobileNumber', 'મોબાઈલ નંબર *')}</Text>
                 <View style={styles.inputWrapper}>
                   <Phone size={18} color={Colors.primary} style={styles.inputIcon} />
                   <TextInput
                     style={styles.inputWithIcon}
-                    placeholder="દા.ત. 9825000005"
+                    placeholder="9825000005"
                     placeholderTextColor={Colors.textMuted}
                     keyboardType="phone-pad"
                     value={loginInput}
@@ -169,12 +184,12 @@ export const LoginScreen: React.FC = () => {
                 </View>
 
                 {/* Password Input with Show/Hide Toggle */}
-                <Text style={styles.inputLabel}>પાસવર્ડ</Text>
+                <Text style={styles.inputLabel}>{t('password', 'પાસવર્ડ *')}</Text>
                 <View style={styles.inputWrapper}>
                   <Lock size={18} color={Colors.primary} style={styles.inputIcon} />
                   <TextInput
                     style={styles.inputWithIcon}
-                    placeholder="પાસવર્ડ દાખલ કરો"
+                    placeholder={t('passwordPlaceholder', 'પાસવર્ડ દાખલ કરો')}
                     placeholderTextColor={Colors.textMuted}
                     secureTextEntry={!showPassword}
                     value={password}
@@ -195,7 +210,7 @@ export const LoginScreen: React.FC = () => {
                 </View>
 
                 <Button
-                  title="લૉગિન કરો"
+                  title={t('loginBtn', 'લૉગિન કરો')}
                   variant="primary"
                   loading={loading}
                   onPress={handleLogin}
@@ -204,18 +219,18 @@ export const LoginScreen: React.FC = () => {
               </>
             ) : (
               <>
-                <Text style={styles.formHeading}>નવું ખાતું બનાવો (Register)</Text>
-                <Text style={styles.formDesc}>પરિવારના નવા સભ્ય તરીકે જોડાવા વિગત ભરો</Text>
+                <Text style={styles.formHeading}>{t('registerHeading', 'પરિવારમાં નવું ખાતું બનાવો')}</Text>
+                <Text style={styles.formDesc}>{t('registerDesc', 'પરિવારના સભ્ય તરીકે જોડાવા વિગત ભરો')}</Text>
 
                 {/* Full Name Input */}
                 <Text style={styles.inputLabel}>
-                  {language === 'gu' ? 'પૂરું નામ' : 'Full Name'}
+                  {t('fullName', 'પૂરું નામ *')}
                 </Text>
                 <View style={styles.inputWrapper}>
                   <UserIcon size={18} color={Colors.primary} style={styles.inputIcon} />
                   <TextInput
                     style={styles.inputWithIcon}
-                    placeholder={language === 'gu' ? 'દા.ત. કિશન સેજાણી' : 'e.g. Kishan Sejani'}
+                    placeholder={t('namePlaceholder', 'તમારું પૂરું નામ દાખલ કરો')}
                     placeholderTextColor={Colors.textMuted}
                     value={regName}
                     onChangeText={setRegName}
@@ -225,13 +240,13 @@ export const LoginScreen: React.FC = () => {
 
                 {/* Mobile Number Input */}
                 <Text style={styles.inputLabel}>
-                  {language === 'gu' ? 'મોબાઈલ નંબર' : 'Mobile Number'}
+                  {t('mobileNumber', 'મોબાઈલ નંબર *')}
                 </Text>
                 <View style={styles.inputWrapper}>
                   <Phone size={18} color={Colors.primary} style={styles.inputIcon} />
                   <TextInput
                     style={styles.inputWithIcon}
-                    placeholder="દા.ત. 9825000005"
+                    placeholder="9825000005"
                     placeholderTextColor={Colors.textMuted}
                     keyboardType="phone-pad"
                     value={regPhone}
@@ -241,15 +256,47 @@ export const LoginScreen: React.FC = () => {
                   />
                 </View>
 
+                {/* Optional Role Selector */}
+                <Text style={styles.inputLabel}>
+                  {t('relationshipRole', 'પરિવારમાં સંબંધ / હોદ્દો (પસંદગી મુજબ)')}
+                </Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.roleChipScroll}>
+                  {ROLE_PRESETS.map((opt) => {
+                    const label = language === 'gu' ? opt.gu : opt.en;
+                    const isSelected = regRelationship === opt.gu;
+                    return (
+                      <TouchableOpacity
+                        key={opt.gu}
+                        style={[styles.roleChip, isSelected && styles.roleChipActive]}
+                        onPress={() => setRegRelationship(opt.gu)}
+                      >
+                        <Text style={[styles.roleChipText, isSelected && styles.roleChipTextActive]}>
+                          {label}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </ScrollView>
+                <View style={styles.inputWrapper}>
+                  <HeartHandshake size={18} color={Colors.primary} style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.inputWithIcon}
+                    placeholder={language === 'gu' ? 'અથવા સંબંધ લખો (દા.ત. સભ્ય, પુત્ર...)' : 'Or type role/relation...'}
+                    placeholderTextColor={Colors.textMuted}
+                    value={regRelationship}
+                    onChangeText={setRegRelationship}
+                  />
+                </View>
+
                 {/* Password Input */}
                 <Text style={styles.inputLabel}>
-                  {language === 'gu' ? 'પાસવર્ડ (ઓછામાં ઓછા ૬ અક્ષર)' : 'Password (min 6 chars)'}
+                  {t('password', 'પાસવર્ડ *')}
                 </Text>
                 <View style={styles.inputWrapper}>
                   <Lock size={18} color={Colors.primary} style={styles.inputIcon} />
                   <TextInput
                     style={styles.inputWithIcon}
-                    placeholder={language === 'gu' ? 'નવો પાસવર્ડ બનાવો' : 'Create new password'}
+                    placeholder={t('regPasswordPlaceholder', 'ઓછામાં ઓછો ૬ અક્ષરનો પાસવર્ડ')}
                     placeholderTextColor={Colors.textMuted}
                     secureTextEntry={!showRegPassword}
                     value={regPassword}
@@ -270,7 +317,7 @@ export const LoginScreen: React.FC = () => {
                 </View>
 
                 <Button
-                  title="એકાઉન્ટ બનાવો & લૉગિન થાઓ"
+                  title={t('createAccountBtn', 'એકાઉન્ટ બનાવો & લૉગિન થાઓ')}
                   variant="success"
                   loading={loading}
                   onPress={handleRegister}
@@ -283,7 +330,7 @@ export const LoginScreen: React.FC = () => {
           {/* Security Note Footer */}
           <View style={styles.securityFooter}>
             <Text style={styles.secFootText}>
-              🔒 <Text style={{ fontWeight: 'bold' }}>સુરક્ષા ગેરંટી:</Text> આ એપમાં એન્ડ-ટુ-એન્ડ ઓથેન્ટિકેશન લાગુ છે. તમારો અંગત ડેટા પરિવારના અન્ય સભ્યો જોઈ કે બદલી શકશે નહીં.
+              🔒 <Text style={{ fontWeight: 'bold' }}>{language === 'gu' ? 'સુરક્ષા ગેરંટી:' : 'Security Guarantee:'}</Text> {language === 'gu' ? 'આ એપમાં એન્ડ-ટુ-એન્ડ સુરક્ષા લાગુ છે. તમારો અંગત ડેટા સંપૂર્ણ સિક્યોર છે.' : 'End-to-end encryption ensures your personal vault data is 100% secure.'}
             </Text>
           </View>
         </ScrollView>
@@ -430,6 +477,32 @@ const styles = StyleSheet.create({
     color: Colors.textPrimary,
     marginTop: 8,
     marginBottom: 6,
+  },
+  roleChipScroll: {
+    flexDirection: 'row',
+    marginBottom: 8,
+  },
+  roleChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 10,
+    backgroundColor: Colors.surfaceSecondary,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    marginRight: 8,
+  },
+  roleChipActive: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
+  roleChipText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: Colors.textSecondary,
+  },
+  roleChipTextActive: {
+    color: '#FFFFFF',
+    fontWeight: '800',
   },
   inputWrapper: {
     flexDirection: 'row',

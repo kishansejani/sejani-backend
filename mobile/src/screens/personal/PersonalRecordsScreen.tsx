@@ -176,8 +176,8 @@ export const PersonalRecordsScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <Header
-        title="મારી અંગત તિજોરી"
-        subtitle="૧૦૦% ખાનગી • ફક્ત તમારો અંગત ડેટા"
+        title={t('tabVault', 'મારી તિજોરી')}
+        subtitle={language === 'gu' ? '૧૦૦% ખાનગી • ફક્ત તમારો અંગત ડેટા' : '100% Private • Isolated Data'}
         rightAction={
           <TouchableOpacity
             style={styles.addTopBtn}
@@ -187,7 +187,7 @@ export const PersonalRecordsScreen: React.FC = () => {
             }}
           >
             <Plus size={16} color="#FFFFFF" strokeWidth={2.5} style={{ marginRight: 4 }} />
-            <Text style={styles.addTopBtnText}>નવી નોંધ</Text>
+            <Text style={styles.addTopBtnText}>{language === 'gu' ? 'નવી નોંધ' : 'Add Note'}</Text>
           </TouchableOpacity>
         }
       />
@@ -198,7 +198,7 @@ export const PersonalRecordsScreen: React.FC = () => {
           <Search size={18} color={Colors.textMuted} style={{ marginRight: 8 }} />
           <TextInput
             style={styles.searchInput}
-            placeholder="શીર્ષક અથવા નોંધમાં શોધો..."
+            placeholder={language === 'gu' ? 'શીર્ષક અથવા નોંધમાં શોધો...' : 'Search in titles or notes...'}
             placeholderTextColor={Colors.textMuted}
             value={searchQuery}
             onChangeText={(txt) => {

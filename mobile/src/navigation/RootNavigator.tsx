@@ -17,11 +17,17 @@ import { ProfileScreen } from '../screens/profile/ProfileScreen';
 
 import { useLanguage } from '../context/LanguageContext';
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
 const MainTabs = () => {
   const { t } = useLanguage();
+  const insets = useSafeAreaInsets();
+
+  const bottomInset = insets.bottom > 0 ? insets.bottom : (Platform.OS === 'android' ? 12 : 8);
+  const tabHeight = 60 + bottomInset;
 
   return (
     <Tab.Navigator
@@ -32,11 +38,11 @@ const MainTabs = () => {
         tabBarStyle: {
           backgroundColor: Colors.surface,
           borderTopColor: Colors.border,
-          height: Platform.OS === 'ios' ? 88 : 68,
-          paddingBottom: Platform.OS === 'ios' ? 28 : 10,
-          paddingTop: 8,
+          height: tabHeight,
+          paddingBottom: Math.max(bottomInset, 8),
+          paddingTop: 6,
           borderTopWidth: 1,
-          elevation: 12,
+          elevation: 16,
           shadowColor: Colors.shadowColor,
           shadowOpacity: 0.12,
           shadowRadius: 8,

@@ -42,6 +42,7 @@ import { Badge } from '../../components/Badge';
 import { Button } from '../../components/Button';
 import { DismissKeyboardBar } from '../../components/DismissKeyboardBar';
 import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { createVoiceRecognition } from '../../utils/voiceRecognition';
 import { exportTractorCustomerBill } from '../../utils/tractorPdfExport';
 import { exportDetailedFarmingReport } from '../../utils/detailedFarmingPdfExport';
@@ -62,6 +63,7 @@ interface SelectedExpConfig {
 
 export const FarmingScreen: React.FC = () => {
   const { user } = useAuth();
+  const { language, t } = useLanguage();
   const [summary, setSummary] = useState<any>(null);
   const [productions, setProductions] = useState<any[]>([]);
   const [expenses, setExpenses] = useState<any[]>([]);
@@ -453,15 +455,15 @@ export const FarmingScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <Header
-        title="🌾 ખેતીવાડી & ટ્રેક્ટર હિસાબ"
-        subtitle="પાક ઉત્પાદન, દવા, ખાતર & ગ્રાહક બિલ"
+        title={t('farmingTitle', '🌾 ખેતીવાડી અને પાક હિસાબ')}
+        subtitle={language === 'gu' ? 'પાક ઉત્પાદન, દવા, ખાતર & ગ્રાહક બિલ' : 'Crop Production, Fertilizers & Ledger'}
         rightAction={
           <TouchableOpacity
             style={styles.pdfHeaderBtn}
             onPress={() => exportDetailedFarmingReport(summary, productions, expenses, tractorWorks, user)}
           >
             <FileDown size={16} color="#FFFFFF" style={{ marginRight: 4 }} />
-            <Text style={styles.pdfHeaderBtnText}>ખેતી PDF</Text>
+            <Text style={styles.pdfHeaderBtnText}>{language === 'gu' ? 'ખેતી PDF' : 'Farm PDF'}</Text>
           </TouchableOpacity>
         }
       />
@@ -480,7 +482,7 @@ export const FarmingScreen: React.FC = () => {
           onPress={() => setActiveTab('tractor')}
         >
           <Text style={[styles.tabBtnText, activeTab === 'tractor' && styles.tabBtnTextActive]}>
-            🚜 ટ્રેક્ટર હિસાબ ({tractorWorks.length})
+            {language === 'gu' ? `🚜 ટ્રેક્ટર (${tractorWorks.length})` : `🚜 Tractor (${tractorWorks.length})`}
           </Text>
         </TouchableOpacity>
 
@@ -489,7 +491,7 @@ export const FarmingScreen: React.FC = () => {
           onPress={() => setActiveTab('production')}
         >
           <Text style={[styles.tabBtnText, activeTab === 'production' && styles.tabBtnTextActive]}>
-            🌾 પાક કેલ્ક્યુલેટર ({productions.length})
+            {language === 'gu' ? `🌾 પાક (${productions.length})` : `🌾 Crops (${productions.length})`}
           </Text>
         </TouchableOpacity>
 
@@ -498,7 +500,7 @@ export const FarmingScreen: React.FC = () => {
           onPress={() => setActiveTab('expense')}
         >
           <Text style={[styles.tabBtnText, activeTab === 'expense' && styles.tabBtnTextActive]}>
-            👷 ખેતી ખર્ચ ({expenses.length})
+            {language === 'gu' ? `👷 ખર્ચ (${expenses.length})` : `👷 Expense (${expenses.length})`}
           </Text>
         </TouchableOpacity>
 
@@ -507,7 +509,7 @@ export const FarmingScreen: React.FC = () => {
           onPress={() => setActiveTab('overview')}
         >
           <Text style={[styles.tabBtnText, activeTab === 'overview' && styles.tabBtnTextActive]}>
-            📊 સમરી & નફો
+            {language === 'gu' ? '📊 સમરી & નફો' : '📊 Summary'}
           </Text>
         </TouchableOpacity>
       </View>
@@ -521,7 +523,7 @@ export const FarmingScreen: React.FC = () => {
         <Card variant="gold" style={styles.netProfitCard}>
           <View style={styles.profitHeaderRow}>
             <View>
-              <Text style={styles.profitSubTitle}>ચોખ્ખો ખેતી નફો (Net Farming Profit)</Text>
+              <Text style={styles.profitSubTitle}>{language === 'gu' ? 'ચોખ્ખો ખેતી નફો (Net Farming Profit)' : 'Net Farming Profit'}</Text>
               <Text style={[styles.profitMainAmt, { color: (summary?.net_profit || 0) >= 0 ? '#059669' : '#DC2626' }]}>
                 ₹{((summary?.net_profit || 0)).toLocaleString('en-IN')}
               </Text>
@@ -539,14 +541,14 @@ export const FarmingScreen: React.FC = () => {
 
           <View style={styles.statsTwoCol}>
             <View style={styles.colBox}>
-              <Text style={styles.colLabel}>કુલ પાક વેચાણ આવક</Text>
+              <Text style={styles.colLabel}>{language === 'gu' ? 'કુલ પાક વેચાણ આવક' : 'Total Crop Revenue'}</Text>
               <Text style={[styles.colValue, { color: '#059669' }]}>
                 + ₹{(summary?.total_revenue || 0).toLocaleString('en-IN')}
               </Text>
             </View>
 
             <View style={[styles.colBox, { borderLeftWidth: 1, borderLeftColor: Colors.border, paddingLeft: 12 }]}>
-              <Text style={styles.colLabel}>કુલ ખેતી ખર્ચ</Text>
+              <Text style={styles.colLabel}>{language === 'gu' ? 'કુલ ખેતી ખર્ચ' : 'Total Farm Expenses'}</Text>
               <Text style={[styles.colValue, { color: '#DC2626' }]}>
                 - ₹{(summary?.total_expense || 0).toLocaleString('en-IN')}
               </Text>
@@ -564,8 +566,8 @@ export const FarmingScreen: React.FC = () => {
             <View style={[styles.actionIconCircle, { backgroundColor: '#FDE68A' }]}>
               <Tractor size={22} color={Colors.accentDark} />
             </View>
-            <Text style={[styles.actionCardTitle, { color: '#92400E' }]}>+ ટ્રેક્ટર હિસાબ</Text>
-            <Text style={styles.actionCardSub}>દાંતી, રાંપ, માઢ, ગ્રાહક બિલ</Text>
+            <Text style={[styles.actionCardTitle, { color: '#92400E' }]}>{language === 'gu' ? '+ ટ્રેક્ટર હિસાબ' : '+ Tractor Work'}</Text>
+            <Text style={styles.actionCardSub}>{language === 'gu' ? 'દાંતી, રાંપ, માઢ, ગ્રાહક બિલ' : 'Tillage, Ploughing, Billing'}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -576,8 +578,8 @@ export const FarmingScreen: React.FC = () => {
             <View style={[styles.actionIconCircle, { backgroundColor: '#ECFDF5' }]}>
               <Calculator size={22} color="#059669" />
             </View>
-            <Text style={styles.actionCardTitle}>+ પાક કેલ્ક્યુલેટર</Text>
-            <Text style={styles.actionCardSub}>મગફળી, કપાસ, ખાંડી/મણ</Text>
+            <Text style={styles.actionCardTitle}>{language === 'gu' ? '+ પાક કેલ્ક્યુલેટર' : '+ Crop Sale'}</Text>
+            <Text style={styles.actionCardSub}>{language === 'gu' ? 'મગફળી, કપાસ, ખાંડી/મણ' : 'Groundnut, Cotton, Quantity'}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -588,8 +590,8 @@ export const FarmingScreen: React.FC = () => {
             <View style={[styles.actionIconCircle, { backgroundColor: '#EFF6FF' }]}>
               <Users size={22} color={Colors.primary} />
             </View>
-            <Text style={styles.actionCardTitle}>+ ખેતી ખર્ચ</Text>
-            <Text style={styles.actionCardSub}>મજૂરી, ખાતર, દવા</Text>
+            <Text style={styles.actionCardTitle}>{language === 'gu' ? '+ ખેતી ખર્ચ' : '+ Add Expense'}</Text>
+            <Text style={styles.actionCardSub}>{language === 'gu' ? 'મજૂરી, ખાતર, દવા' : 'Labour, Fertilizer, Pesticide'}</Text>
           </TouchableOpacity>
         </View>
 

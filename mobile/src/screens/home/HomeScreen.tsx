@@ -107,8 +107,8 @@ export const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Header
-        title={`જય શ્રી કૃષ્ણ, ${(user?.profile?.full_name_gu || user?.name || 'સભ્ય').split(' ')[0]}`}
-        subtitle="PersonalInfo • સુરક્ષિત પારિવારિક પોર્ટલ"
+        title={`${t('greeting', 'જય શ્રી કૃષ્ણ')}, ${(user?.profile?.full_name_gu || user?.name || (language === 'gu' ? 'સભ્ય' : 'Member')).split(' ')[0]}`}
+        subtitle={language === 'gu' ? 'PersonalInfo • સુરક્ષિત પારિવારિક પોર્ટલ' : 'PersonalInfo • Secure Family Portal'}
         onProfilePress={() => navigation.navigate('Profile')}
       />
 
@@ -241,7 +241,7 @@ export const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
             style={styles.viewAllBtn}
             onPress={() => navigation.navigate('PersonalVault')}
           >
-            <Text style={styles.viewAllText}>બધું જુઓ</Text>
+            <Text style={styles.viewAllText}>{language === 'gu' ? 'બધું જુઓ' : 'View All'}</Text>
             <ChevronRight size={16} color={Colors.primaryLight} />
           </TouchableOpacity>
         </View>
@@ -251,10 +251,10 @@ export const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         ) : records.length === 0 ? (
           <Card style={styles.emptyCard}>
             <FileText size={40} color={Colors.textMuted} style={{ marginBottom: 8 }} />
-            <Text style={styles.emptyTitle}>હજી કોઈ અંગત નોંધ નથી</Text>
-            <Text style={styles.emptyDesc}>તમારી પ્રથમ ખાનગી નોંધ અથવા હિસાબ ઉમેરવા નીચે બટન દબાવો.</Text>
+            <Text style={styles.emptyTitle}>{language === 'gu' ? 'હજી કોઈ અંગત નોંધ નથી' : 'No vault records yet'}</Text>
+            <Text style={styles.emptyDesc}>{language === 'gu' ? 'તમારી પ્રથમ ખાનગી નોંધ અથવા હિસાબ ઉમેરવા નીચે બટન દબાવો.' : 'Press the button below to add your first private record.'}</Text>
             <Button
-              title="+ નવી નોંધ ઉમેરો"
+              title={t('addRecord', '+ નવી નોંધ ઉમેરો')}
               variant="primary"
               onPress={() => setModalVisible(true)}
               style={{ marginTop: 12 }}

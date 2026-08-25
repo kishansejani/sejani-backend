@@ -25,18 +25,37 @@ class ProfileController extends Controller
             'avatar' => 'nullable|string',
             'bio_gu' => 'nullable|string|max:500',
             'emergency_contact' => 'nullable|string|max:20',
+            'relation_title_gu' => 'nullable|string|max:100',
         ], [
             'full_name_gu.required' => 'પૂરું નામ (ગુજરાતીમાં) દાખલ કરવું જરૂરી છે.',
         ]);
 
+        $profileData = collect($validated)->except(['relation_title_gu'])->toArray();
         $profile = UserProfile::updateOrCreate(
             ['user_id' => $user->id],
-            $validated
+            $profileData
         );
 
         if ($request->filled('full_name_gu')) {
             $user->name = $request->full_name_gu;
             $user->save();
+        }
+
+        if ($request->filled('relation_title_gu')) {
+            $relation = $request->relation_title_gu;
+            $family = $user->families()->first() ?? \App\Models\Family::first();
+            if ($family) {
+                if ($user->families()->where('families.id', $family->id)->exists()) {
+                    $user->families()->updateExistingPivot($family->id, [
+                        'relation_title_gu' => $relation,
+                    ]);
+                } else {
+                    $user->families()->attach($family->id, [
+                        'relation_title_gu' => $relation,
+                        'is_admin' => false,
+                    ]);
+                }
+            }
         }
 
         AuditLog::create([

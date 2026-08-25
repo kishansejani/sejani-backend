@@ -68,11 +68,11 @@ export const TasksScreen: React.FC = () => {
   const [savingTask, setSavingTask] = useState(false);
 
   const categories = [
-    { key: 'payment_collect', label: '💰 પેમેન્ટ લેવાનું', color: '#059669', bg: '#ECFDF5' },
-    { key: 'bill_pay', label: '⚡ બિલ ભરવાનું', color: '#D97706', bg: '#FEF3C7' },
-    { key: 'farming_work', label: '🌾 ખેતી કામ', color: Colors.primary, bg: '#EFF6FF' },
-    { key: 'vehicle', label: '🚗 વાહન / વીમો', color: '#8B5CF6', bg: '#F5F3FF' },
-    { key: 'general', label: '📝 સામાન્ય નોંધ', color: Colors.textSecondary, bg: '#F1F5F9' },
+    { key: 'payment_collect', label: language === 'gu' ? '💰 પેમેન્ટ લેવાનું' : '💰 Payment Due', color: '#059669', bg: '#ECFDF5' },
+    { key: 'bill_pay', label: language === 'gu' ? '⚡ બિલ ભરવાનું' : '⚡ Bill Payment', color: '#D97706', bg: '#FEF3C7' },
+    { key: 'farming_work', label: language === 'gu' ? '🌾 ખેતી કામ' : '🌾 Farm Task', color: Colors.primary, bg: '#EFF6FF' },
+    { key: 'vehicle', label: language === 'gu' ? '🚗 વાહન / વીમો' : '🚗 Vehicle/Insurance', color: '#8B5CF6', bg: '#F5F3FF' },
+    { key: 'general', label: language === 'gu' ? '📝 સામાન્ય નોંધ' : '📝 General Task', color: Colors.textSecondary, bg: '#F1F5F9' },
   ];
 
   useEffect(() => {
@@ -232,8 +232,8 @@ export const TasksScreen: React.FC = () => {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
         <Header
-          title="🔔 કામ & પેમેન્ટ એલર્ટ્સ"
-          subtitle="રિમાઇન્ડર, બિલ તારીખો & પેમેન્ટ લિસ્ટ"
+          title={t('tabAlerts', '🔔 એલર્ટ્સ')}
+          subtitle={language === 'gu' ? 'રિમાઇન્ડર, બિલ તારીખો & પેમેન્ટ લિસ્ટ' : 'Reminders, Bill Due Dates & Payments'}
         />
 
         {toastMessage && (
