@@ -12,6 +12,7 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   ImageBackground,
+  Image,
 } from 'react-native';
 import { Lock, Phone, Eye, EyeOff, ShieldCheck, User as UserIcon, HeartHandshake } from 'lucide-react-native';
 import { Colors } from '../../theme/colors';
@@ -130,9 +131,11 @@ export const LoginScreen: React.FC = () => {
                 </Text>
               </TouchableOpacity>
 
-              <View style={styles.logoBadge}>
-                <Text style={styles.omSymbol}>卐</Text>
-              </View>
+              <Image
+                source={require('../../../assets/splash_farmer_logo.png')}
+                style={styles.heroLogoImage}
+                resizeMode="contain"
+              />
               <Text style={styles.appTitle}>
                 {language === 'gu' ? 'જય શ્રી કૃષ્ણ • તમારું સ્વાગત છે' : 'Jai Shree Krishna • Welcome'}
               </Text>
@@ -386,6 +389,12 @@ const styles = StyleSheet.create({
     color: '#FEF3C7',
     fontSize: 12,
     fontWeight: '800',
+  },
+  heroLogoImage: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    marginBottom: 10,
   },
   logoBadge: {
     width: 60,

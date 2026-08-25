@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ActivityIndicator, StyleSheet, Platform, ImageBackground } from 'react-native';
+import { View, Text, ActivityIndicator, StyleSheet, Platform, ImageBackground, Image } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -148,9 +148,14 @@ export const RootNavigator = () => {
         resizeMode="cover"
       >
         <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color="#FEF3C7" />
-          <Text style={styles.loadingText}>જય શ્રી કૃષ્ણ • તમારું સ્વાગત છે...</Text>
-          <Text style={styles.loadingSub}>PersonalInfo • સુરક્ષિત ડિજિટલ પોર્ટલ</Text>
+          <Image
+            source={require('../../assets/splash_farmer_logo.png')}
+            style={styles.splashEmblem}
+            resizeMode="contain"
+          />
+          <ActivityIndicator size="large" color="#FEF3C7" style={{ marginTop: 14 }} />
+          <Text style={styles.loadingText}>જય શ્રી કૃષ્ણ • સ્વાગત છે...</Text>
+          <Text style={styles.loadingSub}>PersonalInfo • ખેતી & ખાનગી પોર્ટલ</Text>
         </View>
       </ImageBackground>
     );
@@ -176,16 +181,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   loadingOverlay: {
-    backgroundColor: 'rgba(15, 23, 42, 0.75)',
+    backgroundColor: 'rgba(15, 23, 42, 0.85)',
     paddingHorizontal: 28,
     paddingVertical: 24,
-    borderRadius: 20,
+    borderRadius: 24,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.2)',
   },
+  splashEmblem: {
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+  },
   loadingText: {
-    marginTop: 14,
+    marginTop: 12,
     fontSize: 16,
     fontWeight: '800',
     color: '#FFFFFF',
@@ -193,8 +203,7 @@ const styles = StyleSheet.create({
   loadingSub: {
     marginTop: 4,
     fontSize: 12,
-    fontWeight: '600',
-    color: '#FEF3C7',
+    color: '#94A3B8',
   },
   activeTabPill: {
     backgroundColor: 'rgba(245, 158, 11, 0.15)',
