@@ -29,41 +29,42 @@ class AuthController extends Controller
             'password.min' => 'પાસવર્ડ ઓછામાં ઓછો ૬ અક્ષરનો હોવો જોઈએ.',
         ]);
 
-        $user = User::create([
-            'name' => $validated['name'],
-            'phone' => $validated['phone'],
-            'password' => Hash::make($validated['password']),
-            'status' => 'active',
-        ]);
+        $user = \Illuminate\Support\Facades\DB::transaction(function () use ($validated) {
+            $user = User::create([
+                'name' => $validated['name'],
+                'phone' => $validated['phone'],
+                'password' => Hash::make($validated['password'], ['rounds' => 10]),
+                'status' => 'active',
+            ]);
 
-        // Create Profile
-        \App\Models\UserProfile::create([
-            'user_id' => $user->id,
-            'full_name_gu' => $validated['name'],
-            'role_in_family' => $validated['relationship'] ?? 'member',
-            'relationship_to_head' => $validated['relationship'] ?? 'સભ્ય',
-        ]);
+            // Create Profile
+            \App\Models\UserProfile::create([
+                'user_id' => $user->id,
+                'full_name_gu' => $validated['name'],
+                'role_in_family' => $validated['relationship'] ?? 'member',
+                'relationship_to_head' => $validated['relationship'] ?? 'સભ્ય',
+            ]);
 
-        // Create an isolated personal family specifically for this user
-        $familyNameGu = $validated['name'] . 'નો પરિવાર';
-        $familyNameEn = $validated['name'] . "'s Family";
-        $familyCode = strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $validated['name']), 0, 4) . rand(1000, 9999));
-        if (strlen($familyCode) < 6) {
+            // Create an isolated personal family specifically for this user
+            $familyNameGu = $validated['name'] . 'નો પરિવાર';
+            $familyNameEn = $validated['name'] . "'s Family";
             $familyCode = 'FAM' . rand(10000, 99999);
-        }
 
-        $family = \App\Models\Family::create([
-            'family_name_gu' => $familyNameGu,
-            'family_name_en' => $familyNameEn,
-            'family_code' => $familyCode,
-            'head_user_id' => $user->id,
-            'description_gu' => 'અંગત અને પારિવારિક ખાતું',
-        ]);
+            $family = \App\Models\Family::create([
+                'family_name_gu' => $familyNameGu,
+                'family_name_en' => $familyNameEn,
+                'family_code' => $familyCode,
+                'head_user_id' => $user->id,
+                'description_gu' => 'અંગત અને પારિવારિક ખાતું',
+            ]);
 
-        $user->families()->attach($family->id, [
-            'relation_title_gu' => $validated['relationship'] ?? 'મોભી',
-            'is_admin' => true,
-        ]);
+            $user->families()->attach($family->id, [
+                'relation_title_gu' => $validated['relationship'] ?? 'મોભી',
+                'is_admin' => true,
+            ]);
+
+            return $user;
+        });
 
         $deviceName = $request->device_name ?? 'mobile-app';
         $token = $user->createToken($deviceName)->plainTextToken;
