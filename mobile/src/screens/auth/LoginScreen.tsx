@@ -114,7 +114,7 @@ export const LoginScreen: React.FC = () => {
         >
           {/* Serene Natural Farm Background Hero Header */}
           <ImageBackground
-            source={require('../../assets/farm_nature_bg.jpg')}
+            source={require('../../../assets/farm_nature_bg.jpg')}
             style={styles.heroSection}
             resizeMode="cover"
           >
