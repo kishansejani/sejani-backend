@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>શ્રી સેજાણી પરિવાર - Expo Go QR Code</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rasa:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; font-family: 'Rasa', serif; margin: 0; padding: 0; }
+    body { background: #0F172A; color: #FFFFFF; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+    .card { background: #1E293B; border: 1px solid #334155; border-radius: 24px; padding: 30px; max-width: 650px; width: 100%; text-align: center; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); }
+    h1 { color: #F59E0B; font-size: 28px; font-weight: 800; margin-bottom: 6px; }
+    p.sub { color: #94A3B8; font-size: 16px; margin-bottom: 24px; }
+    .qr-container { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-bottom: 24px; }
+    .qr-box { background: #FFFFFF; border-radius: 18px; padding: 18px; color: #0F172A; text-align: center; flex: 1; min-width: 240px; max-width: 280px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); }
+    .qr-box img { width: 100%; height: auto; border-radius: 8px; }
+    .qr-label { font-size: 15px; font-weight: 800; color: #1E3A8A; margin-top: 10px; }
+    .qr-url { font-size: 13px; color: #059669; font-weight: bold; margin-top: 4px; word-break: break-all; }
+    .instructions { background: #0F172A; border: 1px solid #334155; border-radius: 14px; padding: 16px; text-align: left; margin-top: 10px; }
+    .instructions h3 { color: #F59E0B; font-size: 16px; margin-bottom: 8px; }
+    .instructions ol { margin-left: 20px; color: #CBD5E1; font-size: 14px; line-height: 1.6; }
+    .footer { margin-top: 24px; color: #64748B; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>📱 શ્રી સેજાણી પરિવાર - મોબાઈલ એપ</h1>
+    <p class="sub">Apple iPhone & Android ફોન માટે Static QR Codes</p>
+
+    <div class="qr-container">
+      <div class="qr-box">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=exp%3A%2F%2F192.168.1.11%3A8081" alt="Port 8081 QR">
+        <div class="qr-label">Main Port (8081)</div>
+        <div class="qr-url">exp://192.168.1.11:8081</div>
+      </div>
+
+      <div class="qr-box">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=exp%3A%2F%2F192.168.1.11%3A8082" alt="Port 8082 QR">
+        <div class="qr-label">Secondary Port (8082)</div>
+        <div class="qr-url">exp://192.168.1.11:8082</div>
+      </div>
+    </div>
+
+    <div class="instructions">
+      <h3>🚀 કેવી રીતે સ્કેન કરવું:</h3>
+      <ol>
+        <li>તમારો ફોન અને લેપટોપ બંને એક જ <strong>Wi-Fi (192.168.1.xxx)</strong> સાથે જોડો.</li>
+        <li><strong>Apple iPhone:</strong> સામાન્ય <strong>Camera (કેમેરા)</strong> ખોલીને ઉપરનો QR Code સ્કેન કરો અને "Open in Expo Go" દબાવો.</li>
+        <li><strong>Android:</strong> <strong>Expo Go</strong> એપ ખોલીને "Scan QR Code" કરો.</li>
+      </ol>
+    </div>
+
+    <div class="footer">Made with ❤️ by Kishan Sejani • શ્રી સેજાણી પરિવાર</div>
+  </div>
+</body>
+</html>
