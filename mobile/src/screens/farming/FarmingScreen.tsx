@@ -42,7 +42,7 @@ import { Badge } from '../../components/Badge';
 import { Button } from '../../components/Button';
 import { DismissKeyboardBar } from '../../components/DismissKeyboardBar';
 import { useAuth } from '../../context/AuthContext';
-import { useLanguage } from '../../context/LanguageContext';
+import { useLanguage, formatCropName, formatOperationName } from '../../context/LanguageContext';
 import { createVoiceRecognition } from '../../utils/voiceRecognition';
 import { exportTractorCustomerBill } from '../../utils/tractorPdfExport';
 import { exportDetailedFarmingReport } from '../../utils/detailedFarmingPdfExport';
@@ -790,7 +790,7 @@ export const FarmingScreen: React.FC = () => {
                               <View style={styles.subItemRow}>
                                 <View style={{ flex: 1 }}>
                                   <Text style={styles.subItemTitle}>
-                                    🚜 {tw.trips_count} {language === 'gu' ? 'વાર' : 'times'} {tw.operation_type}
+                                    🚜 {tw.trips_count} {language === 'gu' ? 'વાર' : 'times'} {formatOperationName(tw.operation_type, language)}
                                   </Text>
                                   <Text style={styles.subItemCalc}>
                                     {tw.units_count} {tw.calc_basis === 'vigha' ? (language === 'gu' ? 'વીઘા' : 'Vigha') : (language === 'gu' ? 'કલાક' : 'Hours')} × ₹{tw.rate_per_unit}
@@ -840,7 +840,7 @@ export const FarmingScreen: React.FC = () => {
                         </View>
                         <View>
                           <Text style={styles.cropName}>
-                            {language === 'gu' ? 'પોતાનું ખેતર' : 'Own Farm'} ({tw.operation_type})
+                            {language === 'gu' ? 'પોતાનું ખેતર' : 'Own Farm'} ({formatOperationName(tw.operation_type, language)})
                           </Text>
                           <Text style={styles.saleDateText}>
                             📅 {tw.work_date} • {language === 'gu' ? 'પોતાનું ખેતર' : 'Own Farm'}
@@ -857,7 +857,7 @@ export const FarmingScreen: React.FC = () => {
                       <View style={styles.calcRow}>
                         <Text style={styles.calcLabel}>{language === 'gu' ? 'કામની વિગત:' : 'Operation details:'}</Text>
                         <Text style={[styles.calcVal, { color: Colors.primary, fontWeight: '800' }]}>
-                          {tw.trips_count} {language === 'gu' ? 'વાર' : 'times'} {tw.operation_type}
+                          {tw.trips_count} {language === 'gu' ? 'વાર' : 'times'} {formatOperationName(tw.operation_type, language)}
                         </Text>
                       </View>
                       <View style={styles.calcRow}>
@@ -915,7 +915,7 @@ export const FarmingScreen: React.FC = () => {
                         <Sprout size={18} color="#059669" />
                       </View>
                       <View>
-                        <Text style={styles.cropName}>{prod.crop_name_gu}</Text>
+                        <Text style={styles.cropName}>{formatCropName(prod.crop_name_gu, language)}</Text>
                         <Text style={styles.saleDateText}>📅 {prod.sale_date} {prod.buyer_name ? `• ${prod.buyer_name}` : ''}</Text>
                       </View>
                     </View>

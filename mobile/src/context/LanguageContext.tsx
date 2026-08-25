@@ -663,3 +663,58 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 };
 
 export const useLanguage = () => useContext(LanguageContext);
+
+export const CROP_TRANSLATIONS: Record<string, { gu: string; en: string }> = {
+  'મગફળી': { gu: 'મગફળી', en: 'Groundnut / Peanut' },
+  'કપાસ': { gu: 'કપાસ', en: 'Cotton' },
+  'જીરું': { gu: 'જીરું', en: 'Cumin' },
+  'ઘઉં': { gu: 'ઘઉં', en: 'Wheat' },
+  'તલ': { gu: 'તલ', en: 'Sesame' },
+  'ચણા': { gu: 'ચણા', en: 'Gram / Chickpea' },
+  'બાજરી': { gu: 'બાજરી', en: 'Millet' },
+  'જુવાર': { gu: 'જુવાર', en: 'Sorghum' },
+  'દાડમ': { gu: 'દાડમ', en: 'Pomegranate' },
+  'સોયાબીન': { gu: 'સોયાબીન', en: 'Soybean' },
+  'ધાણા': { gu: 'ધાણા', en: 'Coriander' },
+  'લસણ': { gu: 'લસણ', en: 'Garlic' },
+  'ડુંગળી': { gu: 'ડુંગળી', en: 'Onion' },
+  'મેથી': { gu: 'મેથી', en: 'Fenugreek' },
+  'કેળા': { gu: 'કેળા', en: 'Banana' },
+  'શેરડી': { gu: 'શેરડી', en: 'Sugarcane' },
+  'રાઈ': { gu: 'રાઈ', en: 'Mustard' },
+  'મગ': { gu: 'મગ', en: 'Green Gram (Moong)' },
+  'અડદ': { gu: 'અડદ', en: 'Black Gram (Urad)' },
+  'તુવેર': { gu: 'તુવેર', en: 'Pigeon Pea (Toor)' },
+  'એરંડા': { gu: 'એરંડા / દિવેલા', en: 'Castor' },
+};
+
+export const OPERATION_TRANSLATIONS: Record<string, { gu: string; en: string }> = {
+  'દાંતી': { gu: 'દાંતી', en: 'Tillage (Danti)' },
+  'રાંપ': { gu: 'રાંપ', en: 'Ploughing (Ramp)' },
+  'માઢ': { gu: 'માઢ (પાળી)', en: 'Bed Making (Madh)' },
+  'સાવડા': { gu: 'સાવડા (વાવણી)', en: 'Sowing (Savda)' },
+  'રોટાવેટર': { gu: 'રોટાવેટર', en: 'Rotavator' },
+  'ડીઝલ': { gu: 'ડીઝલ / ઇંધણ', en: 'Diesel / Fuel' },
+  'સ્પ્રે': { gu: 'દવા સ્પ્રે', en: 'Pesticide Spray' },
+  'થ્રેસર': { gu: 'થ્રેસર', en: 'Threshing' },
+};
+
+export const formatCropName = (cropName?: string, lang: Language = 'gu'): string => {
+  if (!cropName) return '';
+  const trimmed = cropName.trim();
+  const match = CROP_TRANSLATIONS[trimmed];
+  if (match) {
+    return lang === 'en' ? match.en : match.gu;
+  }
+  return trimmed;
+};
+
+export const formatOperationName = (opName?: string, lang: Language = 'gu'): string => {
+  if (!opName) return '';
+  const trimmed = opName.trim();
+  const match = OPERATION_TRANSLATIONS[trimmed];
+  if (match) {
+    return lang === 'en' ? match.en : match.gu;
+  }
+  return trimmed;
+};
