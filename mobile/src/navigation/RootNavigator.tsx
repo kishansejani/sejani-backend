@@ -36,26 +36,27 @@ const MainTabs = () => {
         tabBarActiveTintColor: Colors.accentDark,
         tabBarInactiveTintColor: '#64748B',
         tabBarStyle: {
-          backgroundColor: Colors.surface,
-          borderTopColor: Colors.border,
+          backgroundColor: '#FFFFFF',
+          borderTopColor: 'rgba(226, 232, 240, 0.8)',
           height: tabHeight,
           paddingBottom: Math.max(bottomInset, 8),
-          paddingTop: 6,
+          paddingTop: 8,
           borderTopWidth: 1,
-          elevation: 16,
-          shadowColor: Colors.shadowColor,
-          shadowOpacity: 0.12,
-          shadowRadius: 8,
+          elevation: 20,
+          shadowColor: '#0F172A',
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: 0.08,
+          shadowRadius: 12,
         },
         tabBarItemStyle: {
           justifyContent: 'center',
           alignItems: 'center',
-          paddingVertical: 4,
+          paddingVertical: 2,
         },
         tabBarLabelStyle: {
           fontSize: 10,
           fontWeight: '700',
-          marginTop: 2,
+          marginTop: 3,
         },
         tabBarHideOnKeyboard: true,
       }}
@@ -66,7 +67,9 @@ const MainTabs = () => {
         options={{
           tabBarLabel: t('tabHome', 'હોમ'),
           tabBarIcon: ({ color, focused }) => (
-            <Home color={color} size={20} strokeWidth={focused ? 2.5 : 1.8} />
+            <View style={focused ? styles.activeTabPill : styles.inactiveTabPill}>
+              <Home color={color} size={focused ? 21 : 19} strokeWidth={focused ? 2.5 : 1.8} />
+            </View>
           ),
         }}
       />
@@ -74,9 +77,11 @@ const MainTabs = () => {
         name="Tasks"
         component={TasksScreen}
         options={{
-          tabBarLabel: t('tabAlerts', '🔔 એલર્ટ્સ'),
+          tabBarLabel: t('tabAlerts', 'સૂચના'),
           tabBarIcon: ({ color, focused }) => (
-            <Bell color={color} size={20} strokeWidth={focused ? 2.5 : 1.8} />
+            <View style={focused ? styles.activeTabPill : styles.inactiveTabPill}>
+              <Bell color={color} size={focused ? 21 : 19} strokeWidth={focused ? 2.5 : 1.8} />
+            </View>
           ),
         }}
       />
@@ -84,9 +89,11 @@ const MainTabs = () => {
         name="Farming"
         component={FarmingScreen}
         options={{
-          tabBarLabel: t('tabFarming', '🌾 ખેતીવાડી'),
+          tabBarLabel: t('tabFarming', 'ખેતીવાડી'),
           tabBarIcon: ({ color, focused }) => (
-            <Sprout color={color} size={20} strokeWidth={focused ? 2.5 : 1.8} />
+            <View style={focused ? styles.activeTabPill : styles.inactiveTabPill}>
+              <Sprout color={color} size={focused ? 21 : 19} strokeWidth={focused ? 2.5 : 1.8} />
+            </View>
           ),
         }}
       />
@@ -94,9 +101,11 @@ const MainTabs = () => {
         name="PersonalVault"
         component={PersonalRecordsScreen}
         options={{
-          tabBarLabel: t('tabVault', 'મારી તિજોરી'),
+          tabBarLabel: t('tabVault', 'અંગત નોંધ'),
           tabBarIcon: ({ color, focused }) => (
-            <ShieldCheck color={color} size={20} strokeWidth={focused ? 2.5 : 1.8} />
+            <View style={focused ? styles.activeTabPill : styles.inactiveTabPill}>
+              <ShieldCheck color={color} size={focused ? 21 : 19} strokeWidth={focused ? 2.5 : 1.8} />
+            </View>
           ),
         }}
       />
@@ -106,7 +115,9 @@ const MainTabs = () => {
         options={{
           tabBarLabel: t('tabFamily', 'પરિવાર'),
           tabBarIcon: ({ color, focused }) => (
-            <Users color={color} size={20} strokeWidth={focused ? 2.5 : 1.8} />
+            <View style={focused ? styles.activeTabPill : styles.inactiveTabPill}>
+              <Users color={color} size={focused ? 21 : 19} strokeWidth={focused ? 2.5 : 1.8} />
+            </View>
           ),
         }}
       />
@@ -116,7 +127,9 @@ const MainTabs = () => {
         options={{
           tabBarLabel: t('tabProfile', 'પ્રોફાઇલ'),
           tabBarIcon: ({ color, focused }) => (
-            <User color={color} size={20} strokeWidth={focused ? 2.5 : 1.8} />
+            <View style={focused ? styles.activeTabPill : styles.inactiveTabPill}>
+              <User color={color} size={focused ? 21 : 19} strokeWidth={focused ? 2.5 : 1.8} />
+            </View>
           ),
         }}
       />
@@ -182,5 +195,21 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
     color: '#FEF3C7',
+  },
+  activeTabPill: {
+    backgroundColor: 'rgba(245, 158, 11, 0.15)',
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(245, 158, 11, 0.35)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  inactiveTabPill: {
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

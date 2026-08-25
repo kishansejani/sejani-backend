@@ -90,16 +90,16 @@ const translations: Record<string, Record<Language, string>> = {
     en: 'Home',
   },
   tabAlerts: {
-    gu: '🔔 એલર્ટ્સ',
-    en: '🔔 Alerts',
+    gu: 'સૂચના',
+    en: 'Alerts',
   },
   tabFarming: {
-    gu: '🌾 ખેતીવાડી',
-    en: '🌾 Farming',
+    gu: 'ખેતીવાડી',
+    en: 'Farming',
   },
   tabVault: {
-    gu: '🔐 અંગત નોંધ',
-    en: '🔐 Personal',
+    gu: 'અંગત નોંધ',
+    en: 'Personal',
   },
   tabFamily: {
     gu: 'પરિવાર',
@@ -108,6 +108,128 @@ const translations: Record<string, Record<Language, string>> = {
   tabProfile: {
     gu: 'પ્રોફાઇલ',
     en: 'Profile',
+  },
+
+  // Farming & Tractor Extra Translations
+  filterByCustomer: {
+    gu: 'ગ્રાહકવાર બિલ ફિલ્ટર:',
+    en: 'Filter by Customer:',
+  },
+  allFilter: {
+    gu: 'બધા',
+    en: 'All',
+  },
+  customerWorkLabel: {
+    gu: 'ગ્રાહક કામ',
+    en: 'Customer Work',
+  },
+  selfWorkLabel: {
+    gu: 'પોતાનું ખેતર',
+    en: 'Own Farm',
+  },
+  operationDetailsLabel: {
+    gu: 'કામની વિગત:',
+    en: 'Operation Details:',
+  },
+  calcBasisLabel: {
+    gu: 'ગણતરી આધાર:',
+    en: 'Calculation Basis:',
+  },
+  vighaUnit: {
+    gu: 'વીઘા',
+    en: 'Vigha',
+  },
+  timesUnit: {
+    gu: 'વાર',
+    en: 'times',
+  },
+  hoursUnit: {
+    gu: 'કલાક',
+    en: 'Hours',
+  },
+  farmExpenseSummaryTitle: {
+    gu: 'ખેતી ખર્ચ સમરી',
+    en: 'Farm Expense Summary',
+  },
+  labourExpenseLabel: {
+    gu: 'મજૂરી ખર્ચ',
+    en: 'Labour Expense',
+  },
+  tractorExpenseLabel: {
+    gu: 'ટ્રેક્ટર ખર્ચ',
+    en: 'Tractor Expense',
+  },
+  fertilizerExpenseLabel: {
+    gu: 'ખાતર ખર્ચ',
+    en: 'Fertilizer Expense',
+  },
+  pesticideSprayLabel: {
+    gu: 'દવા & છંટકાવ',
+    en: 'Pesticides & Spray',
+  },
+  cropProdAndSalesTitle: {
+    gu: 'પાક ઉત્પાદન & વેચાણ હિસાબ',
+    en: 'Crop Production & Sales',
+  },
+  addNewCropBtn: {
+    gu: '+ નવો પાક',
+    en: '+ New Crop',
+  },
+  saleQtyLabel: {
+    gu: 'વેચાણ જથ્થો:',
+    en: 'Sale Quantity:',
+  },
+  weightInManLabel: {
+    gu: 'મણમાં વજન:',
+    en: 'Weight in Man:',
+  },
+  weightInKgLabel: {
+    gu: 'કિલોમાં વજન:',
+    en: 'Weight in KG:',
+  },
+  manUnit: {
+    gu: 'મણ',
+    en: 'Man',
+  },
+  farmExpenseHeading: {
+    gu: 'ખેતી ખર્ચ હિસાબ',
+    en: 'Farm Expenses',
+  },
+  farmExpenseSubtitle: {
+    gu: 'દવા, ખાતર, મજૂરી & બિયારણના વિગતવાર ખર્ચા',
+    en: 'Detailed expenses for medicine, fertilizer & seeds',
+  },
+  addExpenseBtn: {
+    gu: '+ ખર્ચ ઉમેરો',
+    en: '+ Add Expense',
+  },
+  calculationLabel: {
+    gu: 'ગણતરી:',
+    en: 'Calculation:',
+  },
+  tractorWorkListHeading: {
+    gu: 'ટ્રેક્ટર કામ લિસ્ટ',
+    en: 'Tractor Work List',
+  },
+  tractorWorkSubtitle: {
+    gu: 'દાંતી, રાંપ, માઢ, સાવડા & ગ્રાહકવાઇઝ બિલ',
+    en: 'Tillage, Ploughing, Bed Making & Customer Bills',
+  },
+  addWorkBtn: {
+    gu: '+ કામ ઉમેરો',
+    en: '+ Add Work',
+  },
+  combinedCustomerBill: {
+    gu: 'કુલ ગ્રાહક બિલ',
+    en: 'Customer Combined Bill',
+  },
+  totalOperationsCount: {
+    gu: 'કુલ કામ',
+    en: 'Total Operations',
+  },
+  customerPdfBtn: {
+    gu: 'ગ્રાહક બિલ PDF',
+    en: 'Customer Bill PDF',
   },
 
   // Login & Register Screen

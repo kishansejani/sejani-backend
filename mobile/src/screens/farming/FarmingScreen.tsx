@@ -74,6 +74,14 @@ export const FarmingScreen: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'tractor' | 'production' | 'expense' | 'overview'>('tractor');
   const [selectedCustomerFilter, setSelectedCustomerFilter] = useState<string>('all');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [expandedCustomers, setExpandedCustomers] = useState<Record<string, boolean>>({});
+
+  const toggleCustomerExpand = (cName: string) => {
+    setExpandedCustomers((prev) => ({
+      ...prev,
+      [cName]: prev[cName] === undefined ? false : !prev[cName],
+    }));
+  };
 
   // Voice Recognition States
   const [isListening, setIsListening] = useState(false);
@@ -454,6 +462,35 @@ export const FarmingScreen: React.FC = () => {
 
   const customerBillTotal = filteredTractorWorks.reduce((s, r) => s + Number(r.total_amount || 0), 0);
 
+  // Group tractor works by customer for customer jobs, or self
+  const groupedTractorData = React.useMemo(() => {
+    const customerMap: Record<string, { customer_name: string; items: any[]; totalAmount: number; work_date: string }> = {};
+    const selfWorks: any[] = [];
+
+    filteredTractorWorks.forEach((tw) => {
+      if (tw.work_category === 'customer') {
+        const cName = tw.customer_name || (language === 'gu' ? 'અન્ય ગ્રાહક' : 'Other Customer');
+        if (!customerMap[cName]) {
+          customerMap[cName] = {
+            customer_name: cName,
+            items: [],
+            totalAmount: 0,
+            work_date: tw.work_date,
+          };
+        }
+        customerMap[cName].items.push(tw);
+        customerMap[cName].totalAmount += Number(tw.total_amount) || 0;
+      } else {
+        selfWorks.push(tw);
+      }
+    });
+
+    return {
+      customerGroups: Object.values(customerMap),
+      selfWorks,
+    };
+  }, [filteredTractorWorks, language]);
+
   return (
     <View style={styles.container}>
       <Header
@@ -511,7 +548,7 @@ export const FarmingScreen: React.FC = () => {
           onPress={() => setActiveTab('overview')}
         >
           <Text style={[styles.tabBtnText, activeTab === 'overview' && styles.tabBtnTextActive]}>
-            {language === 'gu' ? '📊 સમરી & નફો' : '📊 Summary'}
+            {language === 'gu' ? '📊 સમરી' : '📊 Summary'}
           </Text>
         </TouchableOpacity>
       </View>
@@ -525,7 +562,7 @@ export const FarmingScreen: React.FC = () => {
         <Card variant="gold" style={styles.netProfitCard}>
           <View style={styles.profitHeaderRow}>
             <View>
-              <Text style={styles.profitSubTitle}>{language === 'gu' ? 'ચોખ્ખો ખેતી નફો (Net Farming Profit)' : 'Net Farming Profit'}</Text>
+              <Text style={styles.profitSubTitle}>{language === 'gu' ? 'ચોખ્ખો ખેતી નફો' : 'Net Farming Profit'}</Text>
               <Text style={[styles.profitMainAmt, { color: (summary?.net_profit || 0) >= 0 ? '#059669' : '#DC2626' }]}>
                 ₹{((summary?.net_profit || 0)).toLocaleString('en-IN')}
               </Text>
@@ -602,8 +639,12 @@ export const FarmingScreen: React.FC = () => {
           <>
             <View style={styles.sectionHeaderRow}>
               <View>
-                <Text style={styles.sectionHeading}>🚜 ટ્રેક્ટર કામ લિસ્ટ ({tractorWorks.length})</Text>
-                <Text style={styles.sectionSub}>દાંતી, રાંપ, માઢ, સાવડા & ગ્રાહકવાઈઝ બિલ</Text>
+                <Text style={styles.sectionHeading}>
+                  {language === 'gu' ? `🚜 ટ્રેક્ટર કામ લિસ્ટ (${tractorWorks.length})` : `🚜 Tractor Work List (${tractorWorks.length})`}
+                </Text>
+                <Text style={styles.sectionSub}>
+                  {language === 'gu' ? 'દાંતી, રાંપ, માઢ, સાવડા & ગ્રાહકવાઇઝ બિલ' : 'Tillage, Ploughing, Bed Making & Customer Bills'}
+                </Text>
               </View>
 
               <TouchableOpacity
@@ -611,21 +652,21 @@ export const FarmingScreen: React.FC = () => {
                 onPress={() => setTractorModalVisible(true)}
               >
                 <Plus size={14} color="#FFFFFF" style={{ marginRight: 2 }} />
-                <Text style={styles.addMiniBtnText}>કામ ઉમેરો</Text>
+                <Text style={styles.addMiniBtnText}>{language === 'gu' ? 'કામ ઉમેરો' : '+ Add Work'}</Text>
               </TouchableOpacity>
             </View>
 
             {/* Customer Filter Chips + PDF Bill Button */}
             {customers.length > 0 && (
               <View style={styles.customerFilterRow}>
-                <Text style={styles.filterHead}>ગ્રાહકવાર બિલ ફિલ્ટર:</Text>
+                <Text style={styles.filterHead}>{language === 'gu' ? 'ગ્રાહકવાર બિલ ફિલ્ટર:' : 'Filter by Customer:'}</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsScroll}>
                   <TouchableOpacity
                     style={[styles.filterChip, selectedCustomerFilter === 'all' && styles.filterChipActive]}
                     onPress={() => setSelectedCustomerFilter('all')}
                   >
                     <Text style={[styles.filterChipText, selectedCustomerFilter === 'all' && styles.filterChipTextActive]}>
-                      બધા ({tractorWorks.length})
+                      {language === 'gu' ? `બધા (${tractorWorks.length})` : `All (${tractorWorks.length})`}
                     </Text>
                   </TouchableOpacity>
 
@@ -649,7 +690,7 @@ export const FarmingScreen: React.FC = () => {
                   >
                     <FileDown size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
                     <Text style={styles.customerPdfBtnText}>
-                      {selectedCustomerFilter} નું બિલ PDF (₹{customerBillTotal.toLocaleString('en-IN')})
+                      {language === 'gu' ? `${selectedCustomerFilter} નું બિલ PDF (₹${customerBillTotal.toLocaleString('en-IN')})` : `Bill PDF for ${selectedCustomerFilter} (₹${customerBillTotal.toLocaleString('en-IN')})`}
                     </Text>
                   </TouchableOpacity>
                 )}
@@ -659,55 +700,169 @@ export const FarmingScreen: React.FC = () => {
             {filteredTractorWorks.length === 0 ? (
               <Card style={styles.emptyCard}>
                 <Tractor size={36} color={Colors.textMuted} style={{ marginBottom: 6 }} />
-                <Text style={styles.emptyTitle}>કોઈ ટ્રેક્ટર કામ નોંધાયેલ નથી</Text>
-                <Text style={styles.emptyDesc}>ઉપર "+ ટ્રેક્ટર હિસાબ" બટન દબાવીને દાંતી, રાંપ કે અન્ય કામ ઉમેરો.</Text>
+                <Text style={styles.emptyTitle}>
+                  {language === 'gu' ? 'કોઈ ટ્રેક્ટર કામ નોંધાયેલ નથી' : 'No Tractor Work Found'}
+                </Text>
+                <Text style={styles.emptyDesc}>
+                  {language === 'gu' ? 'ઉપર "+ ટ્રેક્ટર હિસાબ" બટન દબાવીને દાંતી, રાંપ કે અન્ય કામ ઉમેરો.' : 'Tap "+ Tractor Work" above to record customer tillage and bills.'}
+                </Text>
               </Card>
             ) : (
-              filteredTractorWorks.map((tw) => (
-                <Card key={tw.id} style={styles.itemCard}>
-                  <View style={styles.itemTopRow}>
-                    <View style={styles.cropTitleRow}>
-                      <View style={[styles.cropIconBg, { backgroundColor: tw.work_category === 'customer' ? '#FEF3C7' : '#EFF6FF' }]}>
-                        <Tractor size={18} color={tw.work_category === 'customer' ? Colors.accentDark : Colors.primary} />
-                      </View>
-                      <View>
-                        <Text style={styles.cropName}>{tw.customer_name} ({tw.operation_type})</Text>
-                        <Text style={styles.saleDateText}>📅 {tw.work_date} • {tw.work_category === 'customer' ? 'ગ્રાહક કામ' : 'પોતાનું ખેતર'}</Text>
-                      </View>
-                    </View>
+              <>
+                {/* 1. Grouped Customer Work Cards */}
+                {groupedTractorData.customerGroups.map((cg) => {
+                  const isExpanded = expandedCustomers[cg.customer_name] !== false; // default expanded
+                  return (
+                    <Card key={cg.customer_name} variant="gold" style={styles.customerGroupCard}>
+                      <TouchableOpacity
+                        style={styles.customerGroupHeader}
+                        onPress={() => toggleCustomerExpand(cg.customer_name)}
+                        activeOpacity={0.8}
+                      >
+                        <View style={styles.cropTitleRow}>
+                          <View style={[styles.cropIconBg, { backgroundColor: '#FEF3C7' }]}>
+                            <Tractor size={20} color={Colors.accentDark} />
+                          </View>
+                          <View style={{ flex: 1, paddingRight: 8 }}>
+                            <Text style={styles.customerGroupTitle}>👤 {cg.customer_name}</Text>
+                            <Text style={styles.saleDateText}>
+                              {language === 'gu'
+                                ? `કુલ ${cg.items.length} કામ • 📅 ${cg.work_date}`
+                                : `Total ${cg.items.length} operations • 📅 ${cg.work_date}`}
+                            </Text>
+                          </View>
+                        </View>
 
-                    <Text style={[styles.totalAmtBadge, { color: tw.work_category === 'customer' ? '#059669' : '#DC2626', backgroundColor: tw.work_category === 'customer' ? '#ECFDF5' : '#FEF2F2' }]}>
-                      ₹{Number(tw.total_amount).toLocaleString('en-IN')}
-                    </Text>
-                  </View>
+                        <View style={styles.groupHeaderRight}>
+                          <Text style={styles.groupTotalBadge}>
+                            ₹{cg.totalAmount.toLocaleString('en-IN')}
+                          </Text>
+                          <ChevronRight
+                            size={18}
+                            color={Colors.textSecondary}
+                            style={{
+                              transform: [{ rotate: isExpanded ? '90deg' : '0deg' }],
+                              marginLeft: 6,
+                            }}
+                          />
+                        </View>
+                      </TouchableOpacity>
 
-                  <View style={[styles.calcBox, { backgroundColor: '#F8FAFC' }]}>
-                    <View style={styles.calcRow}>
-                      <Text style={styles.calcLabel}>કામની વિગત:</Text>
-                      <Text style={[styles.calcVal, { color: Colors.primary, fontWeight: '800' }]}>
-                        {tw.trips_count} વાર {tw.operation_type}
+                      {/* Group Level Action: Download Combined Bill PDF */}
+                      <View style={styles.groupActionBar}>
+                        <TouchableOpacity
+                          style={styles.groupPdfBtn}
+                          onPress={() => exportTractorCustomerBill(cg.customer_name, cg.items, user)}
+                          activeOpacity={0.8}
+                        >
+                          <FileDown size={14} color="#FFFFFF" style={{ marginRight: 6 }} />
+                          <Text style={styles.groupPdfBtnText}>
+                            {language === 'gu'
+                              ? `${cg.customer_name} નું કમ્બાઈન્ડ બિલ PDF`
+                              : `Combined Bill PDF for ${cg.customer_name}`}
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+
+                      {/* Expandable sub operations */}
+                      {isExpanded && (
+                        <View style={styles.groupSubItemsContainer}>
+                          {cg.items.map((tw) => (
+                            <View key={tw.id} style={styles.groupSubItem}>
+                              <View style={styles.subItemRow}>
+                                <View style={{ flex: 1 }}>
+                                  <Text style={styles.subItemTitle}>
+                                    🚜 {tw.trips_count} {language === 'gu' ? 'વાર' : 'times'} {tw.operation_type}
+                                  </Text>
+                                  <Text style={styles.subItemCalc}>
+                                    {tw.units_count} {tw.calc_basis === 'vigha' ? (language === 'gu' ? 'વીઘા' : 'Vigha') : (language === 'gu' ? 'કલાક' : 'Hours')} × ₹{tw.rate_per_unit}
+                                  </Text>
+                                </View>
+                                <Text style={styles.subItemAmount}>
+                                  ₹{Number(tw.total_amount).toLocaleString('en-IN')}
+                                </Text>
+                              </View>
+
+                              <View style={styles.subItemActions}>
+                                <TouchableOpacity
+                                  style={styles.miniPdfBtn}
+                                  onPress={() => exportTractorCustomerBill(cg.customer_name, [tw], user)}
+                                >
+                                  <Printer size={12} color={Colors.primary} style={{ marginRight: 3 }} />
+                                  <Text style={styles.miniPdfBtnText}>
+                                    {language === 'gu' ? 'PDF' : 'PDF'}
+                                  </Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity
+                                  style={styles.delMiniBtn}
+                                  onPress={() => handleDeleteTractorWork(tw.id)}
+                                >
+                                  <Trash2 size={12} color={Colors.danger} style={{ marginRight: 3 }} />
+                                  <Text style={styles.delMiniBtnText}>
+                                    {language === 'gu' ? 'ડિલીટ' : 'Delete'}
+                                  </Text>
+                                </TouchableOpacity>
+                              </View>
+                            </View>
+                          ))}
+                        </View>
+                      )}
+                    </Card>
+                  );
+                })}
+
+                {/* 2. Self Farm Works */}
+                {groupedTractorData.selfWorks.map((tw) => (
+                  <Card key={tw.id} style={styles.itemCard}>
+                    <View style={styles.itemTopRow}>
+                      <View style={styles.cropTitleRow}>
+                        <View style={[styles.cropIconBg, { backgroundColor: '#EFF6FF' }]}>
+                          <Tractor size={18} color={Colors.primary} />
+                        </View>
+                        <View>
+                          <Text style={styles.cropName}>
+                            {language === 'gu' ? 'પોતાનું ખેતર' : 'Own Farm'} ({tw.operation_type})
+                          </Text>
+                          <Text style={styles.saleDateText}>
+                            📅 {tw.work_date} • {language === 'gu' ? 'પોતાનું ખેતર' : 'Own Farm'}
+                          </Text>
+                        </View>
+                      </View>
+
+                      <Text style={[styles.totalAmtBadge, { color: '#DC2626', backgroundColor: '#FEF2F2' }]}>
+                        ₹{Number(tw.total_amount).toLocaleString('en-IN')}
                       </Text>
                     </View>
-                    <View style={styles.calcRow}>
-                      <Text style={styles.calcLabel}>ગણતરી આધાર:</Text>
-                      <Text style={styles.calcVal}>
-                        {tw.units_count} {tw.calc_basis === 'vigha' ? 'વીઘા' : 'કલાક'} × ₹{tw.rate_per_unit}
-                      </Text>
-                    </View>
-                  </View>
 
-                  <View style={styles.itemFooter}>
-                    <Text style={styles.ownerText}>🔒 Tractor Record #{tw.id}</Text>
-                    <TouchableOpacity
-                      style={styles.delBtn}
-                      onPress={() => handleDeleteTractorWork(tw.id)}
-                    >
-                      <Trash2 size={14} color={Colors.danger} style={{ marginRight: 4 }} />
-                      <Text style={styles.delBtnText}>ડિલીટ</Text>
-                    </TouchableOpacity>
-                  </View>
-                </Card>
-              ))
+                    <View style={[styles.calcBox, { backgroundColor: '#F8FAFC' }]}>
+                      <View style={styles.calcRow}>
+                        <Text style={styles.calcLabel}>{language === 'gu' ? 'કામની વિગત:' : 'Operation details:'}</Text>
+                        <Text style={[styles.calcVal, { color: Colors.primary, fontWeight: '800' }]}>
+                          {tw.trips_count} {language === 'gu' ? 'વાર' : 'times'} {tw.operation_type}
+                        </Text>
+                      </View>
+                      <View style={styles.calcRow}>
+                        <Text style={styles.calcLabel}>{language === 'gu' ? 'ગણતરી આધાર:' : 'Calculation basis:'}</Text>
+                        <Text style={styles.calcVal}>
+                          {tw.units_count} {tw.calc_basis === 'vigha' ? (language === 'gu' ? 'વીઘા' : 'Vigha') : (language === 'gu' ? 'કલાક' : 'Hours')} × ₹{tw.rate_per_unit}
+                        </Text>
+                      </View>
+                    </View>
+
+                    <View style={styles.itemFooter}>
+                      <Text style={styles.ownerText}>🔒 Tractor Record #{tw.id}</Text>
+                      <TouchableOpacity
+                        style={styles.delBtn}
+                        onPress={() => handleDeleteTractorWork(tw.id)}
+                      >
+                        <Trash2 size={14} color={Colors.danger} style={{ marginRight: 4 }} />
+                        <Text style={styles.delBtnText}>{language === 'gu' ? 'ડિલીટ' : 'Delete'}</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </Card>
+                ))}
+              </>
             )}
           </>
         )}
@@ -716,18 +871,22 @@ export const FarmingScreen: React.FC = () => {
         {activeTab === 'production' && (
           <>
             <View style={styles.sectionHeaderRow}>
-              <Text style={styles.sectionHeading}>પાક ઉત્પાદન & વેચાણ હિસાબ ({productions.length})</Text>
+              <Text style={styles.sectionHeading}>
+                {language === 'gu' ? `પાક ઉત્પાદન & વેચાણ હિસાબ (${productions.length})` : `Crop Production & Sales (${productions.length})`}
+              </Text>
               <TouchableOpacity style={styles.addMiniBtn} onPress={() => setProdModalVisible(true)}>
                 <Plus size={14} color="#FFFFFF" style={{ marginRight: 2 }} />
-                <Text style={styles.addMiniBtnText}>નવો પાક</Text>
+                <Text style={styles.addMiniBtnText}>{language === 'gu' ? '+ નવો પાક' : '+ New Crop'}</Text>
               </TouchableOpacity>
             </View>
 
             {productions.length === 0 ? (
               <Card style={styles.emptyCard}>
                 <Sprout size={36} color={Colors.textMuted} style={{ marginBottom: 6 }} />
-                <Text style={styles.emptyTitle}>કોઈ પાક ઉત્પાદન નોંધાયેલ નથી</Text>
-                <Text style={styles.emptyDesc}>દા.ત. ૨૦ ખાંડી મગફળી અથવા ૫૦ મણ કપાસનો હિસાબ ઉમેરો.</Text>
+                <Text style={styles.emptyTitle}>{language === 'gu' ? 'કોઈ પાક ઉત્પાદન નોંધાયેલ નથી' : 'No Crop Records Found'}</Text>
+                <Text style={styles.emptyDesc}>
+                  {language === 'gu' ? 'દા.ત. ૨૦ ખાંડી મગફળી અથવા ૫૦ મણ કપાસનો હિસાબ ઉમેરો.' : 'e.g. Record 20 Khandi Groundnut or 50 Man Cotton.'}
+                </Text>
               </Card>
             ) : (
               productions.map((prod) => (
@@ -748,15 +907,15 @@ export const FarmingScreen: React.FC = () => {
 
                   <View style={styles.calcBox}>
                     <View style={styles.calcRow}>
-                      <Text style={styles.calcLabel}>વેચાણ જથ્થો:</Text>
+                      <Text style={styles.calcLabel}>{language === 'gu' ? 'વેચાણ જથ્થો:' : 'Sale Quantity:'}</Text>
                       <Text style={styles.calcVal}>{prod.quantity} {prod.unit?.toUpperCase()} @ ₹{Number(prod.rate_per_unit).toLocaleString('en-IN')}</Text>
                     </View>
                     <View style={styles.calcRow}>
-                      <Text style={styles.calcLabel}>મણમાં વજન:</Text>
-                      <Text style={[styles.calcVal, { color: Colors.accentDark, fontWeight: '800' }]}>{prod.equivalent_man || '-'} મણ</Text>
+                      <Text style={styles.calcLabel}>{language === 'gu' ? 'મણમાં વજન:' : 'Weight in Man:'}</Text>
+                      <Text style={[styles.calcVal, { color: Colors.accentDark, fontWeight: '800' }]}>{prod.equivalent_man || '-'} {language === 'gu' ? 'મણ' : 'Man'}</Text>
                     </View>
                     <View style={styles.calcRow}>
-                      <Text style={styles.calcLabel}>કિલોમાં વજન:</Text>
+                      <Text style={styles.calcLabel}>{language === 'gu' ? 'કિલોમાં વજન:' : 'Weight in KG:'}</Text>
                       <Text style={styles.calcVal}>{prod.equivalent_kg ? `${Number(prod.equivalent_kg).toLocaleString('en-IN')} KG` : '-'}</Text>
                     </View>
                   </View>
@@ -771,8 +930,12 @@ export const FarmingScreen: React.FC = () => {
           <>
             <View style={styles.sectionHeaderRow}>
               <View>
-                <Text style={styles.sectionHeading}>👷 ખેતી ખર્ચ હિસાબ ({expenses.length})</Text>
-                <Text style={styles.sectionSub}>દવા, ખાતર, મજૂરી & બિયારણના વિગતવાર ખર્ચા</Text>
+                <Text style={styles.sectionHeading}>
+                  {language === 'gu' ? `👷 ખેતી ખર્ચ હિસાબ (${expenses.length})` : `👷 Farm Expenses (${expenses.length})`}
+                </Text>
+                <Text style={styles.sectionSub}>
+                  {language === 'gu' ? 'દવા, ખાતર, મજૂરી & બિયારણના વિગતવાર ખર્ચા' : 'Detailed expenses for medicine, fertilizer & seeds'}
+                </Text>
               </View>
 
               <TouchableOpacity
@@ -780,14 +943,14 @@ export const FarmingScreen: React.FC = () => {
                 onPress={() => setExpModalVisible(true)}
               >
                 <Plus size={14} color="#FFFFFF" style={{ marginRight: 2 }} />
-                <Text style={styles.addMiniBtnText}>ખર્ચ ઉમેરો</Text>
+                <Text style={styles.addMiniBtnText}>{language === 'gu' ? '+ ખર્ચ ઉમેરો' : '+ Add Expense'}</Text>
               </TouchableOpacity>
             </View>
 
             {expenses.length === 0 ? (
               <Card style={styles.emptyCard}>
                 <Users size={36} color={Colors.textMuted} style={{ marginBottom: 6 }} />
-                <Text style={styles.emptyTitle}>કોઈ ખેતી ખર્ચ નોંધાયેલ નથી</Text>
+                <Text style={styles.emptyTitle}>{language === 'gu' ? 'કોઈ ખેતી ખર્ચ નોંધાયેલ નથી' : 'No Farm Expenses Found'}</Text>
               </Card>
             ) : (
               expenses.map((exp) => (
@@ -811,7 +974,7 @@ export const FarmingScreen: React.FC = () => {
                   {exp.quantity_or_hours && exp.unit_rate ? (
                     <View style={[styles.calcBox, { backgroundColor: '#F8FAFC' }]}>
                       <Text style={styles.calcLabel}>
-                        ગણતરી: {exp.quantity_or_hours} × ₹{exp.unit_rate} = <Text style={{ fontWeight: 'bold', color: Colors.danger }}>₹{Number(exp.amount).toLocaleString('en-IN')}</Text>
+                        {language === 'gu' ? 'ગણતરી:' : 'Calculation:'} {exp.quantity_or_hours} × ₹{exp.unit_rate} = <Text style={{ fontWeight: 'bold', color: Colors.danger }}>₹{Number(exp.amount).toLocaleString('en-IN')}</Text>
                       </Text>
                     </View>
                   ) : null}
@@ -823,7 +986,7 @@ export const FarmingScreen: React.FC = () => {
                       onPress={() => handleDeleteExpense(exp.id)}
                     >
                       <Trash2 size={14} color={Colors.danger} style={{ marginRight: 4 }} />
-                      <Text style={styles.delBtnText}>ડિલીટ</Text>
+                      <Text style={styles.delBtnText}>{language === 'gu' ? 'ડિલીટ' : 'Delete'}</Text>
                     </TouchableOpacity>
                   </View>
                 </Card>
@@ -835,12 +998,14 @@ export const FarmingScreen: React.FC = () => {
         {/* TAB 4: OVERVIEW */}
         {activeTab === 'overview' && (
           <>
-            <Text style={styles.sectionHeading}>ખેતી ખર્ચ સમરી</Text>
+            <Text style={styles.sectionHeading}>
+              {language === 'gu' ? 'ખેતી ખર્ચ સમરી' : 'Farm Expense Summary'}
+            </Text>
             <Card style={styles.breakdownCard}>
               <View style={styles.breakdownItem}>
                 <View style={styles.breakRow}>
                   <Users size={16} color={Colors.primary} style={{ marginRight: 8 }} />
-                  <Text style={styles.breakLabel}>મજૂરી ખર્ચ</Text>
+                  <Text style={styles.breakLabel}>{language === 'gu' ? 'મજૂરી ખર્ચ' : 'Labour Expense'}</Text>
                 </View>
                 <Text style={styles.breakVal}>₹{(summary?.breakdown?.labour || 0).toLocaleString('en-IN')}</Text>
               </View>
@@ -849,7 +1014,7 @@ export const FarmingScreen: React.FC = () => {
               <View style={styles.breakdownItem}>
                 <View style={styles.breakRow}>
                   <Tractor size={16} color={Colors.accentDark} style={{ marginRight: 8 }} />
-                  <Text style={styles.breakLabel}>ટ્રેક્ટર ખર્ચ</Text>
+                  <Text style={styles.breakLabel}>{language === 'gu' ? 'ટ્રેક્ટર ખર્ચ' : 'Tractor Expense'}</Text>
                 </View>
                 <Text style={styles.breakVal}>₹{(summary?.breakdown?.tractor || 0).toLocaleString('en-IN')}</Text>
               </View>
@@ -858,7 +1023,7 @@ export const FarmingScreen: React.FC = () => {
               <View style={styles.breakdownItem}>
                 <View style={styles.breakRow}>
                   <Sprout size={16} color={Colors.success} style={{ marginRight: 8 }} />
-                  <Text style={styles.breakLabel}>ખાતર ખર્ચ</Text>
+                  <Text style={styles.breakLabel}>{language === 'gu' ? 'ખાતર ખર્ચ' : 'Fertilizer Expense'}</Text>
                 </View>
                 <Text style={styles.breakVal}>₹{(summary?.breakdown?.fertilizer || 0).toLocaleString('en-IN')}</Text>
               </View>
@@ -867,7 +1032,7 @@ export const FarmingScreen: React.FC = () => {
               <View style={styles.breakdownItem}>
                 <View style={styles.breakRow}>
                   <FlaskConical size={16} color="#8B5CF6" style={{ marginRight: 8 }} />
-                  <Text style={styles.breakLabel}>દવા & છંટકાવ</Text>
+                  <Text style={styles.breakLabel}>{language === 'gu' ? 'દવા & છંટકાવ' : 'Pesticides & Spray'}</Text>
                 </View>
                 <Text style={styles.breakVal}>₹{(summary?.breakdown?.medicine || 0).toLocaleString('en-IN')}</Text>
               </View>
@@ -1692,6 +1857,128 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 13,
     fontWeight: '800',
+  },
+  customerGroupCard: {
+    padding: 14,
+    marginBottom: 12,
+  },
+  customerGroupHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  customerGroupTitle: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: Colors.textPrimary,
+  },
+  groupHeaderRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  groupTotalBadge: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: '#059669',
+    backgroundColor: '#ECFDF5',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  groupActionBar: {
+    marginTop: 10,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(245, 158, 11, 0.2)',
+  },
+  groupPdfBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.accentDark,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+  },
+  groupPdfBtnText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  groupSubItemsContainer: {
+    marginTop: 10,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+  },
+  groupSubItem: {
+    backgroundColor: '#F8FAFC',
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  subItemRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 6,
+  },
+  subItemTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: Colors.textPrimary,
+  },
+  subItemCalc: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    marginTop: 2,
+  },
+  subItemAmount: {
+    fontSize: 14,
+    fontWeight: '900',
+    color: Colors.primary,
+  },
+  subItemActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    borderTopWidth: 1,
+    borderTopColor: '#E2E8F0',
+    paddingTop: 6,
+    marginTop: 4,
+  },
+  miniPdfBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#EFF6FF',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
+    marginRight: 8,
+  },
+  miniPdfBtnText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: Colors.primary,
+  },
+  delMiniBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FEF2F2',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#FECACA',
+  },
+  delMiniBtnText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: Colors.danger,
   },
   itemCard: {
     padding: 14,
