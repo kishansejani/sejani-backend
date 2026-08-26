@@ -43,7 +43,7 @@ return [
 
         'sqlite' => [
             'driver' => 'sqlite',
-            'url' => $databaseUrl,
+            'url' => (!empty($databaseUrl) && str_starts_with((string)$databaseUrl, 'sqlite:')) ? $databaseUrl : null,
             'database' => env('DB_DATABASE', database_path('database.sqlite')),
             'prefix' => '',
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
