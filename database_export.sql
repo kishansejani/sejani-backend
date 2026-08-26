@@ -1,6 +1,6 @@
 -- Database SQL Dump for TablePlus & Database Tools
 -- Database: personal
--- Generated: 2026-08-25 10:02:24
+-- Generated: 2026-08-26 13:28:43
 
 -- --------------------------------------------------------
 -- Table structure & data for table `migrations`
@@ -20,6 +20,9 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES ('8', '2026_08_24_0
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES ('9', '2026_01_01_000005_create_farming_tables', '2');
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES ('10', '2026_01_01_000006_create_tractor_works_table', '3');
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES ('11', '2026_01_01_000007_create_tasks_table', '4');
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES ('12', '2026_08_25_000001_clean_demo_seed_data', '5');
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES ('13', '2026_08_26_000001_fix_orphaned_family_members', '6');
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES ('14', '2026_08_26_000002_wipe_dummy_patel_family', '7');
 
 -- --------------------------------------------------------
 -- Table structure & data for table `users`
@@ -99,6 +102,10 @@ INSERT INTO `user_profiles` (`id`, `user_id`, `full_name_gu`, `full_name_en`, `b
 DROP TABLE IF EXISTS `families`;
 CREATE TABLE "families" ("id" integer primary key autoincrement not null, "family_name_gu" varchar not null, "family_name_en" varchar, "family_code" varchar not null, "head_user_id" integer, "description_gu" text, "created_at" datetime, "updated_at" datetime, foreign key("head_user_id") references "users"("id") on delete set null);
 
+INSERT INTO `families` (`id`, `family_name_gu`, `family_name_en`, `family_code`, `head_user_id`, `description_gu`, `created_at`, `updated_at`) VALUES ('2', 'Kishan Sejani Test પરિવાર', 'Kishan Sejani Test Family', 'FAM18368', '19', 'અંગત અને પારિવારિક ખાતું', '2026-08-26 07:26:55', '2026-08-26 07:26:55');
+INSERT INTO `families` (`id`, `family_name_gu`, `family_name_en`, `family_code`, `head_user_id`, `description_gu`, `created_at`, `updated_at`) VALUES ('3', 'New User Test પરિવાર', 'New User Test Family', 'FAM46688', '20', 'અંગત અને પારિવારિક ખાતું', '2026-08-26 07:26:55', '2026-08-26 07:26:55');
+INSERT INTO `families` (`id`, `family_name_gu`, `family_name_en`, `family_code`, `head_user_id`, `description_gu`, `created_at`, `updated_at`) VALUES ('4', 'Kishan Live Test પરિવાર', 'Kishan Live Test Family', 'FAM60958', '21', 'અંગત અને પારિવારિક ખાતું', '2026-08-26 07:26:55', '2026-08-26 07:26:55');
+
 -- --------------------------------------------------------
 -- Table structure & data for table `family_members`
 -- --------------------------------------------------------
@@ -106,9 +113,9 @@ CREATE TABLE "families" ("id" integer primary key autoincrement not null, "famil
 DROP TABLE IF EXISTS `family_members`;
 CREATE TABLE "family_members" ("id" integer primary key autoincrement not null, "family_id" integer not null, "user_id" integer not null, "relation_title_gu" varchar not null, "is_admin" tinyint(1) not null default '0', "created_at" datetime, "updated_at" datetime, foreign key("family_id") references "families"("id") on delete cascade, foreign key("user_id") references "users"("id") on delete cascade);
 
-INSERT INTO `family_members` (`id`, `family_id`, `user_id`, `relation_title_gu`, `is_admin`, `created_at`, `updated_at`) VALUES ('19', '1', '19', 'પુત્ર', '0', NULL, NULL);
-INSERT INTO `family_members` (`id`, `family_id`, `user_id`, `relation_title_gu`, `is_admin`, `created_at`, `updated_at`) VALUES ('20', '1', '20', 'સભ્ય', '0', NULL, NULL);
-INSERT INTO `family_members` (`id`, `family_id`, `user_id`, `relation_title_gu`, `is_admin`, `created_at`, `updated_at`) VALUES ('21', '1', '21', 'સભ્ય', '0', NULL, NULL);
+INSERT INTO `family_members` (`id`, `family_id`, `user_id`, `relation_title_gu`, `is_admin`, `created_at`, `updated_at`) VALUES ('22', '2', '19', 'મોભી', '1', '2026-08-26 07:26:55', '2026-08-26 07:26:55');
+INSERT INTO `family_members` (`id`, `family_id`, `user_id`, `relation_title_gu`, `is_admin`, `created_at`, `updated_at`) VALUES ('23', '3', '20', 'મોભી', '1', '2026-08-26 07:26:55', '2026-08-26 07:26:55');
+INSERT INTO `family_members` (`id`, `family_id`, `user_id`, `relation_title_gu`, `is_admin`, `created_at`, `updated_at`) VALUES ('24', '4', '21', 'મોભી', '1', '2026-08-26 07:26:55', '2026-08-26 07:26:55');
 
 -- --------------------------------------------------------
 -- Table structure & data for table `personal_records`
@@ -216,8 +223,6 @@ INSERT INTO `farm_expenses` (`id`, `user_id`, `crop_id`, `expense_type`, `title_
 
 DROP TABLE IF EXISTS `tractor_works`;
 CREATE TABLE "tractor_works" ("id" integer primary key autoincrement not null, "user_id" integer not null, "work_category" varchar not null default 'customer', "customer_name" varchar, "customer_phone" varchar, "operation_type" varchar not null, "trips_count" integer not null default '1', "calc_basis" varchar not null default 'vigha', "units_count" numeric not null, "rate_per_unit" numeric not null, "total_amount" numeric not null, "payment_status" varchar not null default 'pending', "paid_amount" numeric not null default '0', "work_date" date not null, "notes" text, "created_at" datetime, "updated_at" datetime, foreign key("user_id") references "users"("id") on delete cascade);
-
-INSERT INTO `tractor_works` (`id`, `user_id`, `work_category`, `customer_name`, `customer_phone`, `operation_type`, `trips_count`, `calc_basis`, `units_count`, `rate_per_unit`, `total_amount`, `payment_status`, `paid_amount`, `work_date`, `notes`, `created_at`, `updated_at`) VALUES ('4', '5', 'customer', 'રામભાઈ પટેલ', NULL, 'દાંતી', '1', 'vigha', '10', '350', '3500', 'pending', '0', '2026-08-24', NULL, '2026-08-24 10:45:05', '2026-08-24 10:45:05');
 
 -- --------------------------------------------------------
 -- Table structure & data for table `tasks`
