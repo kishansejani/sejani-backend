@@ -29,9 +29,10 @@
     "plugins": [
       "expo-secure-store"
     ],
+    "owner": "kishan2205s-team",
     "extra": {
       "eas": {
-        "projectId": "54206db8-2946-4236-86a5-44aa0b06fcd9"
+        "projectId": "a5f41525-bb4d-42ea-87f8-e95256e193f2"
       }
     }
   }
