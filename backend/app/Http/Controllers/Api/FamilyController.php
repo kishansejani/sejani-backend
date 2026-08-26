@@ -14,14 +14,19 @@ use Illuminate\Support\Facades\Auth;
 class FamilyController extends Controller
 {
     /**
-     * Get the family details of the logged in user.
+     * Helper to get or create the user's personal family cleanly.
      */
-    public function index(Request $request)
+    private function getUserFamily(User $user): Family
     {
-        $user = $request->user();
+        // Purge any dangling memberships where family does not exist
+        $validFamilyIds = Family::pluck('id')->toArray();
+        FamilyMember::where('user_id', $user->id)
+            ->whereNotIn('family_id', $validFamilyIds)
+            ->delete();
+
         $family = $user->families()->first();
 
-        // If user was attached to old demo PATEL2026 family, purge it and create fresh personal family
+        // If user was attached to old demo PATEL2026 family, purge it
         if ($family && $family->family_code === 'PATEL2026') {
             FamilyMember::where('family_id', $family->id)->delete();
             $family->delete();
@@ -49,6 +54,17 @@ class FamilyController extends Controller
             ]);
         }
 
+        return $family;
+    }
+
+    /**
+     * Get the family details of the logged in user.
+     */
+    public function index(Request $request)
+    {
+        $user = $request->user();
+        $family = $this->getUserFamily($user);
+
         $members = FamilyMember::with(['user.profile'])
             ->where('family_id', $family->id)
             ->get();
@@ -72,10 +88,9 @@ class FamilyController extends Controller
     public function memberDetails(Request $request, int $userId)
     {
         $currentUser = $request->user();
-        
-        // Find if target user is in the same family
-        $userFamilyIds = $currentUser->families()->pluck('families.id')->toArray();
-        $targetMember = FamilyMember::whereIn('family_id', $userFamilyIds)
+        $family = $this->getUserFamily($currentUser);
+
+        $targetMember = FamilyMember::where('family_id', $family->id)
             ->where('user_id', $userId)
             ->with(['user.profile', 'family'])
             ->first();
@@ -107,19 +122,7 @@ class FamilyController extends Controller
         ]);
 
         $currentUser = $request->user();
-        $family = $currentUser->families()->first();
-
-        if (!$family) {
-            // Create family if none exists
-            $family = Family::create([
-                'family_name_gu' => $currentUser->name . 'નો પરિવાર',
-                'family_name_en' => $currentUser->name . "'s Family",
-                'family_code' => 'FAM' . rand(10000, 99999),
-                'head_user_id' => $currentUser->id,
-                'description_gu' => 'અંગત અને પારિવારિક ખાતું',
-            ]);
-            $currentUser->families()->attach($family->id, ['relation_title_gu' => 'મોભી', 'is_admin' => true]);
-        }
+        $family = $this->getUserFamily($currentUser);
 
         // Check if user already exists
         $user = User::where('phone', $validated['phone'])->first();
@@ -134,9 +137,15 @@ class FamilyController extends Controller
             \App\Models\UserProfile::create([
                 'user_id' => $user->id,
                 'full_name_gu' => $validated['name'],
-                'role_in_family' => $validated['relation_title_gu'] ?? 'member',
-                'relationship_to_head' => $validated['relation_title_gu'] ?? 'સભ્ય',
             ]);
+        } else {
+            // Ensure profile exists
+            if (!$user->profile) {
+                \App\Models\UserProfile::create([
+                    'user_id' => $user->id,
+                    'full_name_gu' => $validated['name'],
+                ]);
+            }
         }
 
         // Check if member already in family
@@ -169,28 +178,24 @@ class FamilyController extends Controller
     public function deleteMember(Request $request, int $id)
     {
         $currentUser = $request->user();
-        $family = $currentUser->families()->first();
-
-        if (!$family) {
-            return response()->json(['message' => 'પરિવાર મળ્યો નહીં.'], 404);
-        }
+        $family = $this->getUserFamily($currentUser);
 
         $member = FamilyMember::where('family_id', $family->id)
-            ->where('id', $id)
+            ->where(function ($q) use ($id) {
+                $q->where('id', $id)->orWhere('user_id', $id);
+            })
             ->first();
 
         if (!$member) {
-            // Also try by user_id
-            $member = FamilyMember::where('family_id', $family->id)
-                ->where('user_id', $id)
-                ->first();
+            return response()->json(['message' => 'સભ્ય મળ્યો નહીં.'], 404);
         }
 
-        if ($member) {
-            $member->delete();
-            return response()->json(['message' => 'સભ્ય પરિવારમાંથી રદ કર્યો.']);
+        if ($member->user_id === $currentUser->id) {
+            return response()->json(['message' => 'તમે પોતાને પરિવારમાંથી રદ કરી શકતા નથી.'], 422);
         }
 
-        return response()->json(['message' => 'સભ્ય મળ્યો નહીં.'], 404);
+        $member->delete();
+
+        return response()->json(['message' => 'સભ્ય પરિવારમાંથી સફળતાપૂર્વક રદ થયો.']);
     }
 }

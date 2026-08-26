@@ -39,7 +39,7 @@ export const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const { user } = useAuth();
   const { language, t } = useLanguage();
   const [records, setRecords] = useState<PersonalRecord[]>([]);
-  const [familyCount, setFamilyCount] = useState<number>(18);
+  const [familyCount, setFamilyCount] = useState<number>(1);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -60,6 +60,8 @@ export const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
       }
       if (familyRes.data?.family?.total_members) {
         setFamilyCount(familyRes.data.family.total_members);
+      } else if (familyRes.data?.members?.length) {
+        setFamilyCount(familyRes.data.members.length);
       }
     } catch (err: any) {
       console.warn('Dashboard fetch error:', err);
@@ -120,7 +122,7 @@ export const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         {/* Royal Panchang & Tithi Banner */}
         <Card variant="dark" style={styles.panchangCard}>
           <View style={styles.panchangRow}>
-            <View>
+            <View style={styles.panchangLeft}>
               <View style={styles.panchangHeaderRow}>
                 <Sparkles size={16} color={Colors.accent} style={{ marginRight: 6 }} />
                 <Text style={styles.panchangTitle}>
@@ -331,6 +333,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+  },
+  panchangLeft: {
+    flex: 1,
+    marginRight: 10,
+    flexShrink: 1,
   },
   panchangHeaderRow: {
     flexDirection: 'row',

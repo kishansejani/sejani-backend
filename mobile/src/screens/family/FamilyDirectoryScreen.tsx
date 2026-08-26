@@ -137,18 +137,34 @@ export const FamilyDirectoryScreen: React.FC = () => {
   };
 
   const handleDeleteMember = async (memberId: number, memberName: string) => {
-    const confirmed = Platform.OS === 'web'
-      ? window.confirm(`શું તમે ${memberName} ને પરિવારમાંથી દૂર કરવા માંગો છો?`)
-      : true;
+    const title = language === 'gu' ? 'સભ્ય રદ કરો' : 'Remove Member';
+    const message = language === 'gu'
+      ? `શું તમે ખરેખર ${memberName} ને પરિવારમાંથી દૂર કરવા માંગો છો?`
+      : `Are you sure you want to remove ${memberName} from the family?`;
 
-    if (confirmed) {
+    const executeDelete = async () => {
       try {
-        await api.delete(`/family/members/${memberId}`);
+        const res = await api.delete(`/family/members/${memberId}`);
         fetchFamily();
-        Alert.alert(t('success', 'સફળ'), language === 'gu' ? 'સભ્ય પરિવારમાંથી રદ થયો.' : 'Member removed from family.');
+        Alert.alert(t('success', 'સફળ'), res.data?.message || (language === 'gu' ? 'સભ્ય પરિવારમાંથી રદ થયો.' : 'Member removed from family.'));
       } catch (err: any) {
-        Alert.alert(t('error', 'ભૂલ'), err.response?.data?.message || 'ડિલીટ કરવામાં ભૂલ આવી.');
+        Alert.alert(t('error', 'ભૂલ'), err.response?.data?.message || (language === 'gu' ? 'ડિલીટ કરવામાં ભૂલ આવી.' : 'Failed to delete member.'));
       }
+    };
+
+    if (Platform.OS === 'web') {
+      if (typeof window !== 'undefined' && window.confirm(message)) {
+        executeDelete();
+      }
+    } else {
+      Alert.alert(
+        title,
+        message,
+        [
+          { text: language === 'gu' ? 'ના / રદ કરો' : 'Cancel', style: 'cancel' },
+          { text: language === 'gu' ? 'હા, દૂર કરો' : 'Remove', style: 'destructive', onPress: executeDelete },
+        ]
+      );
     }
   };
 

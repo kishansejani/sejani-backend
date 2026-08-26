@@ -41,8 +41,6 @@ class AuthController extends Controller
             \App\Models\UserProfile::create([
                 'user_id' => $user->id,
                 'full_name_gu' => $validated['name'],
-                'role_in_family' => $validated['relationship'] ?? 'member',
-                'relationship_to_head' => $validated['relationship'] ?? 'સભ્ય',
             ]);
 
             // Create an isolated personal family specifically for this user

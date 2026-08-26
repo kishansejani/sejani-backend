@@ -26,7 +26,6 @@ import {
   FlaskConical,
   X,
   Calculator,
-  Mic,
   Check,
   User,
   CheckCircle,
@@ -43,7 +42,6 @@ import { Button } from '../../components/Button';
 import { DismissKeyboardBar } from '../../components/DismissKeyboardBar';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage, formatCropName, formatOperationName } from '../../context/LanguageContext';
-import { createVoiceRecognition } from '../../utils/voiceRecognition';
 import { exportTractorCustomerBill } from '../../utils/tractorPdfExport';
 import { exportDetailedFarmingReport } from '../../utils/detailedFarmingPdfExport';
 import api from '../../api/client';
@@ -82,14 +80,6 @@ export const FarmingScreen: React.FC = () => {
       [cName]: prev[cName] === undefined ? false : !prev[cName],
     }));
   };
-
-  // Voice Recognition States
-  const [isListening, setIsListening] = useState(false);
-  const [activeVoiceField, setActiveVoiceField] = useState<string | null>(null);
-  const [voiceModalVisible, setVoiceModalVisible] = useState(false);
-  const [voiceSpokenText, setVoiceSpokenText] = useState('');
-  const [voiceTargetCallback, setVoiceTargetCallback] = useState<((val: string) => void) | null>(null);
-  const [voiceModalTitle, setVoiceModalTitle] = useState('');
 
   // 1. Crop Production Modal States
   const [prodModalVisible, setProdModalVisible] = useState(false);
@@ -273,38 +263,7 @@ export const FarmingScreen: React.FC = () => {
     return sum + (parseFloat(selectedExpMap[key]?.amount) || 0);
   }, 0);
 
-  // Voice Input Activator
-  const startVoiceInput = (targetField: string, setter: (val: string) => void, title?: string) => {
-    setVoiceModalTitle(title || (language === 'gu' ? '🎤 વોઇસ ટાઇપિંગ / બોલો' : '🎤 Voice Typing'));
-    setVoiceSpokenText('');
-    setVoiceTargetCallback(() => setter);
-    setVoiceModalVisible(true);
 
-    const voice = createVoiceRecognition();
-    setIsListening(true);
-    setActiveVoiceField(targetField);
-
-    voice.startListening(
-      (text) => {
-        setVoiceSpokenText(text);
-        setIsListening(false);
-        setActiveVoiceField(null);
-      },
-      () => {
-        setIsListening(false);
-        setActiveVoiceField(null);
-      }
-    );
-  };
-
-  const handleApplyVoiceText = (textToApply?: string) => {
-    const finalVal = textToApply !== undefined ? textToApply : voiceSpokenText;
-    if (voiceTargetCallback && finalVal.trim()) {
-      voiceTargetCallback(finalVal.trim());
-    }
-    setVoiceModalVisible(false);
-    setVoiceSpokenText('');
-  };
 
   // Live Auto Math for Crop Production
   const numQty = parseFloat(quantity) || 0;
@@ -1215,18 +1174,7 @@ export const FarmingScreen: React.FC = () => {
             </View>
 
             <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
-              <View style={styles.labelWithMicRow}>
-                <Text style={styles.inputLabel}>૧. પાકનું નામ લખો અથવા બોલો:</Text>
-                <TouchableOpacity
-                  style={[styles.micBtn, isListening && activeVoiceField === 'crop' && styles.micBtnActive]}
-                  onPress={() => startVoiceInput('crop', setCropName)}
-                >
-                  <Mic size={16} color={isListening && activeVoiceField === 'crop' ? '#FFFFFF' : Colors.primary} />
-                  <Text style={[styles.micBtnText, isListening && activeVoiceField === 'crop' && { color: '#FFFFFF' }]}>
-                    {isListening && activeVoiceField === 'crop' ? 'સાંભળે છે...' : 'બોલો 🎤'}
-                  </Text>
-                </TouchableOpacity>
-              </View>
+              <Text style={styles.inputLabel}>૧. પાકનું નામ (Crop Name):</Text>
 
               <TextInput
                 style={[styles.input, { fontWeight: 'bold' }]}
@@ -1341,16 +1289,7 @@ export const FarmingScreen: React.FC = () => {
                 </View>
               </View>
 
-              <View style={styles.labelWithMicRow}>
-                <Text style={styles.inputLabel}>વેપારી / માર્કેટ યાર્ડનું નામ:</Text>
-                <TouchableOpacity
-                  style={[styles.micBtn, isListening && activeVoiceField === 'buyer' && styles.micBtnActive]}
-                  onPress={() => startVoiceInput('buyer', setBuyerName)}
-                >
-                  <Mic size={14} color={Colors.primary} />
-                  <Text style={styles.micBtnText}>બોલો 🎤</Text>
-                </TouchableOpacity>
-              </View>
+              <Text style={styles.inputLabel}>વેપારી / માર્કેટ યાર્ડનું નામ:</Text>
               <TextInput
                 style={styles.input}
                 placeholder="દા.ત. ગોંડલ યાર્ડ, ગોકુલ ટ્રેડર્સ"
@@ -1417,16 +1356,7 @@ export const FarmingScreen: React.FC = () => {
 
               {tractorCategory === 'customer' && (
                 <>
-                  <View style={styles.labelWithMicRow}>
-                    <Text style={styles.inputLabel}>ગ્રાહક / ખેડૂતનું નામ (Customer):</Text>
-                    <TouchableOpacity
-                      style={[styles.micBtn, isListening && activeVoiceField === 'cust' && styles.micBtnActive]}
-                      onPress={() => startVoiceInput('cust', setCustomerName)}
-                    >
-                      <Mic size={14} color={Colors.primary} />
-                      <Text style={styles.micBtnText}>નામ બોલો 🎤</Text>
-                    </TouchableOpacity>
-                  </View>
+                  <Text style={styles.inputLabel}>ગ્રાહક / ખેડૂતનું નામ (Customer):</Text>
                   <TextInput
                     style={[styles.input, { fontWeight: 'bold' }]}
                     placeholder="દા.ત. રામભાઈ પટેલ, સુરેશભાઈ..."
@@ -1663,17 +1593,7 @@ export const FarmingScreen: React.FC = () => {
                           </Text>
                         </View>
 
-                        {/* Title with Voice Mic */}
-                        <View style={styles.labelWithMicRow}>
-                          <Text style={styles.smallLabel}>ખર્ચનું નામ / બ્રાન્ડ / વિગત:</Text>
-                          <TouchableOpacity
-                            style={styles.micBtn}
-                            onPress={() => startVoiceInput(`exp_${catKey}`, (txt) => updateExpenseField(catKey, 'title', txt))}
-                          >
-                            <Mic size={12} color={Colors.primary} />
-                            <Text style={styles.micBtnText}>બોલો 🎤</Text>
-                          </TouchableOpacity>
-                        </View>
+                        <Text style={styles.smallLabel}>ખર્ચનું નામ / બ્રાન્ડ / વિગત:</Text>
                         <TextInput
                           style={styles.miniInput}
                           value={item.title}
@@ -1750,67 +1670,7 @@ export const FarmingScreen: React.FC = () => {
         </View>
       </Modal>
 
-      {/* MODAL 4: DEDICATED IN-APP VOICE DICTATION MODAL */}
-      <Modal visible={voiceModalVisible} animationType="fade" transparent>
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: 20 }]}>
-            <View style={styles.modalHeader}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Mic size={22} color={Colors.accentDark} style={{ marginRight: 8 }} />
-                <Text style={styles.modalHeading}>{voiceModalTitle || (language === 'gu' ? '🎤 વોઇસ ટાઇપિંગ' : '🎤 Voice Typing')}</Text>
-              </View>
-              <TouchableOpacity onPress={() => setVoiceModalVisible(false)}>
-                <X size={22} color={Colors.textSecondary} />
-              </TouchableOpacity>
-            </View>
 
-            <View style={{ alignItems: 'center', paddingVertical: 18 }}>
-              <View style={[styles.glowingMicRing, isListening && styles.glowingMicRingActive]}>
-                <Mic size={34} color={isListening ? '#FFFFFF' : Colors.accentDark} />
-              </View>
-              <Text style={styles.voiceStatusText}>
-                {isListening
-                  ? (language === 'gu' ? '🎙️ સાંભળી રહ્યું છે... હવે બોલો!' : '🎙️ Listening... Speak now!')
-                  : (language === 'gu' ? '✨ કીબોર્ડ માઇક પર ટેપ કરો અથવા અહીં ટાઇપ કરો' : '✨ Tap keyboard mic or type below')}
-              </Text>
-            </View>
-
-            {/* Live Text Input */}
-            <TextInput
-              style={styles.voiceTextInput}
-              placeholder={language === 'gu' ? 'અહીં બોલેલું લખાણ લખાશે...' : 'Your voice text will appear here...'}
-              placeholderTextColor={Colors.textMuted}
-              value={voiceSpokenText}
-              onChangeText={setVoiceSpokenText}
-              autoFocus
-              multiline
-            />
-
-            {/* Quick 1-Tap Presets */}
-            <Text style={[styles.inputLabel, { marginTop: 10 }]}>
-              {language === 'gu' ? '💡 ઝડપી સૂચનો (Quick Presets):' : '💡 Quick Presets:'}
-            </Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexDirection: 'row', marginBottom: 14 }}>
-              {['મગફળી ૨૦ ખાંડી', 'કપાસ ૫૦ મણ', 'દાંતી ૧૦ વીઘા', 'રાંપ ૧૦ વીઘા', 'DAP ખાતર ૫ થેલી', 'દવા છંટકાવ', 'ડીઝલ ૫૦ લિટર'].map((preset) => (
-                <TouchableOpacity
-                  key={preset}
-                  style={styles.voicePresetChip}
-                  onPress={() => setVoiceSpokenText(preset)}
-                >
-                  <Text style={styles.voicePresetChipText}>{preset}</Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-
-            <Button
-              title={language === 'gu' ? '✅ ઉમેરો (Apply)' : '✅ Apply Text'}
-              variant="primary"
-              onPress={() => handleApplyVoiceText()}
-              style={{ height: 46, marginBottom: 16 }}
-            />
-          </View>
-        </View>
-      </Modal>
 
       {/* Global Close Keyboard Bar */}
       <DismissKeyboardBar />

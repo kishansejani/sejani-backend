@@ -25,7 +25,6 @@ import {
   CheckCircle,
   Circle,
   X,
-  Mic,
   Sprout,
   Zap,
   Car,
@@ -42,7 +41,6 @@ import { Button } from '../../components/Button';
 import { DismissKeyboardBar } from '../../components/DismissKeyboardBar';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
-import { createVoiceRecognition } from '../../utils/voiceRecognition';
 import { notificationService } from '../../utils/notificationService';
 import api from '../../api/client';
 
@@ -55,9 +53,6 @@ export const TasksScreen: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [permissionGranted, setPermissionGranted] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-
-  // Voice Recognition States
-  const [isListening, setIsListening] = useState(false);
 
   // Add Task Form States
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
@@ -111,18 +106,6 @@ export const TasksScreen: React.FC = () => {
   const onRefresh = () => {
     setRefreshing(true);
     fetchTasks();
-  };
-
-  const startVoiceInput = () => {
-    const voice = createVoiceRecognition();
-    setIsListening(true);
-    voice.startListening(
-      (text) => {
-        setTitle(text);
-        setIsListening(false);
-      },
-      () => setIsListening(false)
-    );
   };
 
   const handleOpenEditTask = (t: any) => {
@@ -446,19 +429,9 @@ export const TasksScreen: React.FC = () => {
                 showsVerticalScrollIndicator={false}
                 keyboardShouldPersistTaps="handled"
               >
-                {/* Voice-enabled Title Input */}
-                <View style={styles.labelWithMicRow}>
-                  <Text style={styles.inputLabel}>૧. કામ / એલર્ટનું નામ લખો અથવા બોલો *</Text>
-                  <TouchableOpacity
-                    style={[styles.micBtn, isListening && styles.micBtnActive]}
-                    onPress={startVoiceInput}
-                  >
-                    <Mic size={14} color={isListening ? '#FFFFFF' : Colors.primary} />
-                    <Text style={[styles.micBtnText, isListening && { color: '#FFFFFF' }]}>
-                      {isListening ? 'સાંભળે છે...' : 'બોલો 🎤'}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
+                <Text style={styles.inputLabel}>
+                  {language === 'gu' ? '૧. કામ / એલર્ટનું નામ લખો *' : '1. Task / Alert Name *'}
+                </Text>
 
                 <TextInput
                   style={[styles.input, { fontWeight: 'bold' }]}
