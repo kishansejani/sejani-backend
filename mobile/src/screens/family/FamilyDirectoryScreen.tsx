@@ -506,6 +506,20 @@ export const FamilyDirectoryScreen: React.FC = () => {
                     onPress={() => handleCall(selectedMember.phone)}
                     style={{ marginTop: 14 }}
                   />
+
+                  {selectedMember.user_id !== user?.id && (
+                    <Button
+                      title={language === 'gu' ? '🗑️ પરિવારમાંથી રદ કરો' : '🗑️ Remove from Family'}
+                      variant="danger"
+                      onPress={() => {
+                        const targetId = selectedMember.id;
+                        const targetName = selectedMember.profile?.full_name_gu || selectedMember.name;
+                        setSelectedMember(null);
+                        handleDeleteMember(targetId, targetName);
+                      }}
+                      style={{ marginTop: 10 }}
+                    />
+                  )}
                 </ScrollView>
               </>
             )}

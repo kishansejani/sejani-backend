@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: sejani-backend
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: singapore
+    envVars:
+      - key: APP_KEY
+        value: base64:sp3pUUlzKFqFVTuG62J4svt2bIUUL9sryjt2wwRuQmI=
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: DB_CONNECTION
+        value: sqlite
