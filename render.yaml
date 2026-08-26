@@ -14,7 +14,3 @@ services:
         value: false
       - key: DB_CONNECTION
         value: sqlite
-      - key: DB_DATABASE
-        value: /var/www/html/database/database.sqlite
-      - key: DATABASE_URL
-        value: ""

@@ -11,11 +11,9 @@ import {
 } from 'react-native';
 import {
   ShieldCheck,
-  Users,
   Plus,
   FileText,
   DollarSign,
-  Calendar,
   Sparkles,
   ChevronRight,
   TrendingUp,
@@ -39,7 +37,6 @@ export const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const { user } = useAuth();
   const { language, t } = useLanguage();
   const [records, setRecords] = useState<PersonalRecord[]>([]);
-  const [familyCount, setFamilyCount] = useState<number>(1);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -50,18 +47,9 @@ export const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
 
   const fetchDashboardData = async () => {
     try {
-      const [recordsRes, familyRes] = await Promise.all([
-        api.get('/personal-records?per_page=5'),
-        api.get('/family'),
-      ]);
-
+      const recordsRes = await api.get('/personal-records?per_page=5');
       if (recordsRes.data?.data) {
         setRecords(recordsRes.data.data);
-      }
-      if (familyRes.data?.family?.total_members) {
-        setFamilyCount(familyRes.data.family.total_members);
-      } else if (familyRes.data?.members?.length) {
-        setFamilyCount(familyRes.data.members.length);
       }
     } catch (err: any) {
       console.warn('Dashboard fetch error:', err);
@@ -110,7 +98,7 @@ export const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
     <View style={styles.container}>
       <Header
         title={`${t('greeting', 'જય શ્રી કૃષ્ણ')}, ${(user?.profile?.full_name_gu || user?.name || (language === 'gu' ? 'સભ્ય' : 'Member')).split(' ')[0]}`}
-        subtitle={language === 'gu' ? 'PersonalInfo • સુરક્ષિત પારિવારિક પોર્ટલ' : 'PersonalInfo • Secure Family Portal'}
+        subtitle={language === 'gu' ? 'PersonalInfo • સુરક્ષિત પર્સનલ & ખેતી પોર્ટલ' : 'PersonalInfo • Secure Personal & Farming Portal'}
         onProfilePress={() => navigation.navigate('Profile')}
       />
 
@@ -156,13 +144,13 @@ export const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
           <TouchableOpacity
             style={styles.statBox}
             activeOpacity={0.8}
-            onPress={() => navigation.navigate('FamilyDirectory')}
+            onPress={() => navigation.navigate('Farming')}
           >
-            <View style={[styles.statIconCircle, { backgroundColor: '#FEF3C7' }]}>
-              <Users size={20} color={Colors.accentDark} />
+            <View style={[styles.statIconCircle, { backgroundColor: '#ECFDF5' }]}>
+              <Sprout size={20} color={Colors.success} />
             </View>
-            <Text style={styles.statNumber}>{familyCount}</Text>
-            <Text style={styles.statLabel}>{language === 'gu' ? 'પરિવાર સભ્યો' : 'Family Members'}</Text>
+            <Text style={styles.statNumber}>ખેતી</Text>
+            <Text style={styles.statLabel}>{language === 'gu' ? 'પાક & કેલ્ક્યુલેટર' : 'Farming & Tools'}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -170,8 +158,8 @@ export const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
             activeOpacity={0.8}
             onPress={() => navigation.navigate('PersonalVault')}
           >
-            <View style={[styles.statIconCircle, { backgroundColor: '#ECFDF5' }]}>
-              <TrendingUp size={20} color={Colors.success} />
+            <View style={[styles.statIconCircle, { backgroundColor: '#FEF3C7' }]}>
+              <TrendingUp size={20} color={Colors.accentDark} />
             </View>
             <Text style={styles.statNumber}>100%</Text>
             <Text style={styles.statLabel}>{language === 'gu' ? 'પ્રાઈવેટ સિક્યોર' : 'Private Secure'}</Text>
@@ -210,13 +198,13 @@ export const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
 
           <TouchableOpacity
             style={styles.actionBtn}
-            onPress={() => navigation.navigate('FamilyDirectory')}
+            onPress={() => navigation.navigate('Tasks')}
             activeOpacity={0.8}
           >
             <View style={[styles.actionIconBg, { backgroundColor: '#FEF3C7' }]}>
-              <Users size={22} color={Colors.accentDark} />
+              <Bell size={22} color={Colors.accentDark} />
             </View>
-            <Text style={styles.actionLabel}>{language === 'gu' ? 'ડિરેક્ટરી' : 'Directory'}</Text>
+            <Text style={styles.actionLabel}>{language === 'gu' ? 'સૂચના / એલર્ટ' : 'Alerts'}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity

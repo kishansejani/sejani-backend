@@ -7,17 +7,12 @@ const TOKEN_KEY = 'family_auth_token';
 // Live Render Production Backend URL (Runs 24/7 in cloud independent of laptop)
 export const LIVE_BACKEND_URL = 'https://sejani-backend.onrender.com/api';
 
-// For Web testing on localhost, route directly to local Laravel backend (port 8005)
-const isLocalWeb = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
-
-export const API_BASE_URL = isLocalWeb 
-  ? 'http://localhost:8005/api'
-  : (Platform.select({
-      web: LIVE_BACKEND_URL,
-      android: LIVE_BACKEND_URL,
-      ios: LIVE_BACKEND_URL,
-      default: LIVE_BACKEND_URL,
-    }) || LIVE_BACKEND_URL);
+export const API_BASE_URL = Platform.select({
+  web: LIVE_BACKEND_URL,
+  android: LIVE_BACKEND_URL,
+  ios: LIVE_BACKEND_URL,
+  default: LIVE_BACKEND_URL,
+});
 
 // In-memory token storage fallback for web/testing
 let inMemoryToken: string | null = null;

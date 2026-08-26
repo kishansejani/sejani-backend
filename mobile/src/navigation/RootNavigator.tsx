@@ -3,7 +3,7 @@ import { View, Text, ActivityIndicator, StyleSheet, Platform, ImageBackground, I
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Home, Bell, Sprout, ShieldCheck, Users, User } from 'lucide-react-native';
+import { Home, Bell, Sprout, ShieldCheck, User } from 'lucide-react-native';
 import { Colors } from '../theme/colors';
 import { useAuth } from '../context/AuthContext';
 
@@ -12,7 +12,6 @@ import { HomeScreen } from '../screens/home/HomeScreen';
 import { TasksScreen } from '../screens/tasks/TasksScreen';
 import { FarmingScreen } from '../screens/farming/FarmingScreen';
 import { PersonalRecordsScreen } from '../screens/personal/PersonalRecordsScreen';
-import { FamilyDirectoryScreen } from '../screens/family/FamilyDirectoryScreen';
 import { ProfileScreen } from '../screens/profile/ProfileScreen';
 
 import { useLanguage } from '../context/LanguageContext';
@@ -105,18 +104,6 @@ const MainTabs = () => {
           tabBarIcon: ({ color, focused }) => (
             <View style={focused ? styles.activeTabPill : styles.inactiveTabPill}>
               <ShieldCheck color={color} size={focused ? 21 : 19} strokeWidth={focused ? 2.5 : 1.8} />
-            </View>
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="FamilyDirectory"
-        component={FamilyDirectoryScreen}
-        options={{
-          tabBarLabel: t('tabFamily', 'પરિવાર'),
-          tabBarIcon: ({ color, focused }) => (
-            <View style={focused ? styles.activeTabPill : styles.inactiveTabPill}>
-              <Users color={color} size={focused ? 21 : 19} strokeWidth={focused ? 2.5 : 1.8} />
             </View>
           ),
         }}
