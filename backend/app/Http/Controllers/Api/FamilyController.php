@@ -26,10 +26,9 @@ class FamilyController extends Controller
 
         $family = $user->families()->first();
 
-        // If user was attached to old demo PATEL2026 family, purge it
-        if ($family && $family->family_code === 'PATEL2026') {
-            FamilyMember::where('family_id', $family->id)->delete();
-            $family->delete();
+        // If user was attached to old demo PATEL2026 or seeded Patel family, purge association
+        if ($family && ($family->family_code === 'PATEL2026' || str_contains($family->family_name_gu ?? '', 'પટેલ પરિવાર'))) {
+            FamilyMember::where('family_id', $family->id)->where('user_id', $user->id)->delete();
             $family = null;
         }
 

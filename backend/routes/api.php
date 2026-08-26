@@ -42,10 +42,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Family Directory (Shared within family)
     Route::get('/family', [FamilyController::class, 'index']);
+    Route::get('/family/members', [FamilyController::class, 'index']);
     Route::get('/family/members/{userId}', [FamilyController::class, 'memberDetails']);
     Route::post('/family/add-member', [FamilyController::class, 'addMember']);
     Route::post('/family/members', [FamilyController::class, 'addMember']);
     Route::delete('/family/members/{id}', [FamilyController::class, 'deleteMember']);
+    Route::delete('/family/member/{id}', [FamilyController::class, 'deleteMember']);
+    Route::post('/family/members/{id}/delete', [FamilyController::class, 'deleteMember']);
 
     // Personal Records (Strict User Ownership Vault)
     Route::apiResource('personal-records', PersonalRecordController::class);
