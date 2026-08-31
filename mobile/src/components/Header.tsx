@@ -35,11 +35,11 @@ export const Header: React.FC<HeaderProps> = ({
     <View style={styles.container}>
       <View style={styles.topRow}>
         <View style={styles.titleContainer}>
-          <Text style={styles.badgeText}>✨ PersonalInfo • {t('securePortal', 'સુરક્ષિત પોર્ટલ')}</Text>
+          <Text style={styles.badgeText}>✨ Farm Connect • {t('securePortal', 'સુરક્ષિત પોર્ટલ')}</Text>
           <Text style={styles.mainTitle}>
             {title || (userName 
               ? `${t('greeting', 'જય શ્રી કૃષ્ણ')}, ${(language === 'en' ? (user?.profile?.full_name_en || user?.name || '') : (user?.profile?.full_name_gu || user?.name || '')).split(' ')[0] || ''}` 
-              : (language === 'gu' ? 'PersonalInfo ડેશબોર્ડ' : 'PersonalInfo Dashboard'))}
+              : (language === 'gu' ? 'Farm Connect ડેશબોર્ડ' : 'Farm Connect Dashboard'))}
           </Text>
           {subtitle ? <Text style={styles.subTitle}>{subtitle}</Text> : null}
         </View>

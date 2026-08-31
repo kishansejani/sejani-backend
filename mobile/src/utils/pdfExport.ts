@@ -3,7 +3,7 @@ import { PersonalRecord, User } from '../types';
 
 export const exportRecordToPdf = (record: PersonalRecord, user?: User | null) => {
   const userName = user?.profile?.full_name_gu || user?.name || 'સભ્ય';
-  const familyName = user?.family?.name_gu || (user?.name ? `${user.name}નો પરિવાર` : 'PersonalInfo');
+  const familyName = user?.family?.name_gu || (user?.name ? `${user.name}નો પરિવાર` : 'Farm Connect');
 
   const htmlContent = `
 <!DOCTYPE html>
@@ -125,7 +125,7 @@ export const exportRecordToPdf = (record: PersonalRecord, user?: User | null) =>
   </div>
 
   <div class="footer">
-    આ દસ્તાવેજ PersonalInfo એપ્લિકેશનમાંથી સુરક્ષિત રીતે જનરેટ કરવામાં આવ્યો છે.
+    આ દસ્તાવેજ Farm Connect એપ્લિકેશનમાંથી સુરક્ષિત રીતે જનરેટ કરવામાં આવ્યો છે.
   </div>
 </body>
 </html>
@@ -146,7 +146,7 @@ export const exportRecordToPdf = (record: PersonalRecord, user?: User | null) =>
 
 export const exportAllRecordsToPdf = (records: PersonalRecord[], user?: User | null) => {
   const userName = user?.profile?.full_name_gu || user?.name || 'સભ્ય';
-  const familyName = user?.family?.name_gu || (user?.name ? `${user.name}નો પરિવાર` : 'PersonalInfo');
+  const familyName = user?.family?.name_gu || (user?.name ? `${user.name}નો પરિવાર` : 'Farm Connect');
   
   const totalAmount = records
     .filter(r => r.record_type === 'expense' && r.amount)
@@ -257,7 +257,7 @@ export const exportAllRecordsToPdf = (records: PersonalRecord[], user?: User | n
   </table>
 
   <div class="footer">
-    આ દસ્તાવેજ PersonalInfo એપ્લિકેશનમાંથી સુરક્ષિત રીતે જનરેટ કરવામાં આવ્યો છે.
+    આ દસ્તાવેજ Farm Connect એપ્લિકેશનમાંથી સુરક્ષિત રીતે જનરેટ કરવામાં આવ્યો છે.
   </div>
 </body>
 </html>

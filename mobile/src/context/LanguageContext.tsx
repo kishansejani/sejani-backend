@@ -14,16 +14,16 @@ interface LanguageContextType {
 const translations: Record<string, Record<Language, string>> = {
   // App & Family Branding
   appName: {
-    gu: 'PersonalInfo',
-    en: 'PersonalInfo',
+    gu: 'Farm Connect',
+    en: 'Farm Connect',
   },
   appSubtitle: {
-    gu: 'પર્સનલ અને ફેમિલી ડેશબોર્ડ • સુરક્ષિત પોર્ટલ',
-    en: 'Personal & Family Dashboard • Secure Portal',
+    gu: 'પર્સનલ અને ખેતી ડેશબોર્ડ • સુરક્ષિત પોર્ટલ',
+    en: 'Personal & Farming Dashboard • Secure Portal',
   },
   ganeshMantra: {
-    gu: '✨ PersonalInfo • સુરક્ષિત પોર્ટલ',
-    en: '✨ PersonalInfo • Secure Portal',
+    gu: '✨ Farm Connect • સુરક્ષિત પોર્ટલ',
+    en: '✨ Farm Connect • Secure Portal',
   },
   securePortal: {
     gu: 'સુરક્ષિત પોર્ટલ',

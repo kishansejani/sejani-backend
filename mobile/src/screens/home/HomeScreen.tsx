@@ -98,7 +98,7 @@ export const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
     <View style={styles.container}>
       <Header
         title={`${t('greeting', 'જય શ્રી કૃષ્ણ')}, ${(user?.profile?.full_name_gu || user?.name || (language === 'gu' ? 'સભ્ય' : 'Member')).split(' ')[0]}`}
-        subtitle={language === 'gu' ? 'PersonalInfo • સુરક્ષિત પર્સનલ & ખેતી પોર્ટલ' : 'PersonalInfo • Secure Personal & Farming Portal'}
+        subtitle={language === 'gu' ? 'Farm Connect • સુરક્ષિત પર્સનલ & ખેતી પોર્ટલ' : 'Farm Connect • Secure Personal & Farming Portal'}
         onProfilePress={() => navigation.navigate('Profile')}
       />
 

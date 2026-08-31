@@ -7,7 +7,7 @@ export const exportDetailedFarmingReport = (
   tractorWorks: any[],
   user?: any
 ) => {
-  const familyName = user?.family?.name_gu || (user?.name ? `${user.name}નો પરિવાર` : 'PersonalInfo');
+  const familyName = user?.family?.name_gu || (user?.name ? `${user.name}નો પરિવાર` : 'Farm Connect');
   const ownerName = user?.profile?.full_name_gu || user?.name || 'ખેડૂત મિત્ર';
 
   // 1. Production Rows
@@ -151,7 +151,7 @@ export const exportDetailedFarmingReport = (
   </table>
 
   <div class="footer">
-    આ દસ્તાવેજ PersonalInfo એપ્લિકેશનમાંથી આપોઆપ જનરેટ થયેલ છે.
+    આ દસ્તાવેજ Farm Connect એપ્લિકેશનમાંથી આપોઆપ જનરેટ થયેલ છે.
   </div>
 </body>
 </html>

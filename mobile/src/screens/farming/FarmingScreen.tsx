@@ -1151,7 +1151,7 @@ export const FarmingScreen: React.FC = () => {
         {/* Branding Footer */}
         <View style={styles.brandingFooter}>
           <Text style={styles.brandText}>
-            {language === 'gu' ? '✨ PersonalInfo • સુરક્ષિત પોર્ટલ' : '✨ PersonalInfo • Secure Portal'}
+            {language === 'gu' ? '✨ Farm Connect • સુરક્ષિત પોર્ટલ' : '✨ Farm Connect • Secure Portal'}
           </Text>
           <Text style={styles.familyTagText}>
             {language === 'gu' ? '૧૦૦% સુરક્ષિત ખાનગી પોર્ટલ' : '100% Secure Private Portal'}

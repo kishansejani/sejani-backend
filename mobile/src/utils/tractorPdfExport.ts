@@ -1,7 +1,7 @@
 import { Platform } from 'react-native';
 
 export const exportTractorCustomerBill = (customerName: string, records: any[], user?: any) => {
-  const familyName = user?.family?.name_gu || (user?.name ? `${user.name}નો પરિવાર` : 'PersonalInfo');
+  const familyName = user?.family?.name_gu || (user?.name ? `${user.name}નો પરિવાર` : 'Farm Connect');
   const ownerName = user?.profile?.full_name_gu || user?.name || 'ખેડૂત મિત્ર';
 
   const totalAmount = records.reduce((sum, r) => sum + Number(r.total_amount || 0), 0);
@@ -99,7 +99,7 @@ export const exportTractorCustomerBill = (customerName: string, records: any[], 
     </div>
 
     <div class="footer">
-      આ બિલ PersonalInfo એપ્લિકેશનમાંથી આપોઆપ જનરેટ થયેલ છે.
+      આ બિલ Farm Connect એપ્લિકેશનમાંથી આપોઆપ જનરેટ થયેલ છે.
     </div>
   </div>
 </body>

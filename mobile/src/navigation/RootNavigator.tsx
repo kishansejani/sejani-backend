@@ -142,7 +142,7 @@ export const RootNavigator = () => {
           />
           <ActivityIndicator size="large" color="#FEF3C7" style={{ marginTop: 14 }} />
           <Text style={styles.loadingText}>જય શ્રી કૃષ્ણ • સ્વાગત છે...</Text>
-          <Text style={styles.loadingSub}>PersonalInfo • ખેતી & ખાનગી પોર્ટલ</Text>
+          <Text style={styles.loadingSub}>Farm Connect • ખેતી & ખાનગી પોર્ટલ</Text>
         </View>
       </ImageBackground>
     );

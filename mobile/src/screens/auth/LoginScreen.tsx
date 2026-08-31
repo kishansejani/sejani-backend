@@ -140,7 +140,7 @@ export const LoginScreen: React.FC = () => {
                 {language === 'gu' ? 'જય શ્રી કૃષ્ણ • તમારું સ્વાગત છે' : 'Jai Shree Krishna • Welcome'}
               </Text>
               <Text style={styles.appSubtitle}>
-                {language === 'gu' ? 'PersonalInfo • સુરક્ષિત પારિવારિક & અંગત પોર્ટલ' : 'PersonalInfo • Secure Personal & Family Portal'}
+                {language === 'gu' ? 'Farm Connect • સુરક્ષિત પારિવારિક & અંગત પોર્ટલ' : 'Farm Connect • Secure Personal & Family Portal'}
               </Text>
               <View style={styles.securityTag}>
                 <ShieldCheck size={14} color="#FEF3C7" style={{ marginRight: 4 }} />
