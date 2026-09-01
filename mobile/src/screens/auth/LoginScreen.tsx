@@ -55,8 +55,19 @@ export const LoginScreen: React.FC = () => {
 
   const [loading, setLoading] = useState(false);
 
+  // Normalization helper for Gujarati numerals and whitespace
+  const normalizeInputPhone = (input: string) => {
+    const gujaratiDigits = ['૦', '૧', '૨', '૩', '૪', '૫', '૬', '૭', '૮', '૯'];
+    let clean = input.trim();
+    gujaratiDigits.forEach((digit, idx) => {
+      clean = clean.split(digit).join(idx.toString());
+    });
+    return clean.replace(/\s+/g, '');
+  };
+
   const handleLogin = async () => {
-    if (!loginInput.trim() || !password) {
+    const cleanLogin = normalizeInputPhone(loginInput);
+    if (!cleanLogin || !password) {
       const msg = language === 'gu' ? 'કૃપા કરીને મોબાઈલ નંબર અને પાસવર્ડ દાખલ કરો.' : 'Please enter mobile number and password.';
       if (Platform.OS === 'web') alert(msg);
       else Alert.alert(t('attention', 'ધ્યાન આપો'), msg);
@@ -65,7 +76,7 @@ export const LoginScreen: React.FC = () => {
 
     setLoading(true);
     Keyboard.dismiss();
-    const res = await login(loginInput.trim(), password);
+    const res = await login(cleanLogin, password);
     setLoading(false);
 
     if (!res.success) {
@@ -76,7 +87,8 @@ export const LoginScreen: React.FC = () => {
   };
 
   const handleRegister = async () => {
-    if (!regName.trim() || !regPhone.trim() || !regPassword) {
+    const cleanPhone = normalizeInputPhone(regPhone);
+    if (!regName.trim() || !cleanPhone || !regPassword) {
       const msg = language === 'gu' ? 'કૃપા કરીને નામ, મોબાઈલ નંબર અને પાસવર્ડ દાખલ કરો.' : 'Please fill all required fields.';
       if (Platform.OS === 'web') alert(msg);
       else Alert.alert(t('attention', 'ધ્યાન આપો'), msg);
@@ -92,7 +104,7 @@ export const LoginScreen: React.FC = () => {
 
     setLoading(true);
     Keyboard.dismiss();
-    const res = await register(regName.trim(), regPhone.trim(), regPassword, regRelationship || 'સભ્ય');
+    const res = await register(regName.trim(), cleanPhone, regPassword, regRelationship || 'સભ્ય');
     setLoading(false);
 
     if (!res.success) {
@@ -193,6 +205,8 @@ export const LoginScreen: React.FC = () => {
                     value={loginInput}
                     onChangeText={setLoginInput}
                     autoCapitalize="none"
+                    autoCorrect={false}
+                    spellCheck={false}
                     returnKeyType="next"
                   />
                 </View>
@@ -208,6 +222,9 @@ export const LoginScreen: React.FC = () => {
                     secureTextEntry={!showPassword}
                     value={password}
                     onChangeText={setPassword}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    spellCheck={false}
                     returnKeyType="done"
                     onSubmitEditing={handleLogin}
                   />
@@ -248,6 +265,7 @@ export const LoginScreen: React.FC = () => {
                     placeholderTextColor={Colors.textMuted}
                     value={regName}
                     onChangeText={setRegName}
+                    autoCorrect={false}
                     returnKeyType="next"
                   />
                 </View>
@@ -266,6 +284,8 @@ export const LoginScreen: React.FC = () => {
                     value={regPhone}
                     onChangeText={setRegPhone}
                     autoCapitalize="none"
+                    autoCorrect={false}
+                    spellCheck={false}
                     returnKeyType="next"
                   />
                 </View>
@@ -299,6 +319,7 @@ export const LoginScreen: React.FC = () => {
                     placeholderTextColor={Colors.textMuted}
                     value={regRelationship}
                     onChangeText={setRegRelationship}
+                    autoCorrect={false}
                   />
                 </View>
 
@@ -315,6 +336,9 @@ export const LoginScreen: React.FC = () => {
                     secureTextEntry={!showRegPassword}
                     value={regPassword}
                     onChangeText={setRegPassword}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    spellCheck={false}
                     returnKeyType="done"
                     onSubmitEditing={handleRegister}
                   />

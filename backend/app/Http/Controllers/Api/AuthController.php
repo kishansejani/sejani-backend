@@ -13,8 +13,32 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
+    private function normalizePhone(string $phone): string
+    {
+        // Convert Gujarati numerals to English (૦-૯ -> 0-9)
+        $gujaratiNumbers = ['૦', '૧', '૨', '૩', '૪', '૫', '૬', '૭', '૮', '૯'];
+        $englishNumbers  = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+        $phone = str_replace($gujaratiNumbers, $englishNumbers, $phone);
+
+        // Remove all non-digit characters
+        $digits = preg_replace('/\D/', '', $phone);
+
+        // Normalize 10-digit Indian numbers from +91 or leading 0
+        if (strlen($digits) === 12 && str_starts_with($digits, '91')) {
+            $digits = substr($digits, 2);
+        } elseif (strlen($digits) === 11 && str_starts_with($digits, '0')) {
+            $digits = substr($digits, 1);
+        }
+
+        return !empty($digits) ? $digits : trim($phone);
+    }
+
     public function register(Request $request)
     {
+        if ($request->has('phone')) {
+            $request->merge(['phone' => $this->normalizePhone((string) $request->phone)]);
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'phone' => 'required|string|unique:users,phone',
@@ -31,7 +55,7 @@ class AuthController extends Controller
 
         $user = \Illuminate\Support\Facades\DB::transaction(function () use ($validated) {
             $user = User::create([
-                'name' => $validated['name'],
+                'name' => trim($validated['name']),
                 'phone' => $validated['phone'],
                 'password' => Hash::make($validated['password'], ['rounds' => 10]),
                 'status' => 'active',
@@ -40,12 +64,12 @@ class AuthController extends Controller
             // Create Profile
             \App\Models\UserProfile::create([
                 'user_id' => $user->id,
-                'full_name_gu' => $validated['name'],
+                'full_name_gu' => trim($validated['name']),
             ]);
 
             // Create an isolated personal family specifically for this user
-            $familyNameGu = $validated['name'] . 'નો પરિવાર';
-            $familyNameEn = $validated['name'] . "'s Family";
+            $familyNameGu = trim($validated['name']) . 'નો પરિવાર';
+            $familyNameEn = trim($validated['name']) . "'s Family";
             $familyCode = 'FAM' . rand(10000, 99999);
 
             $family = \App\Models\Family::create([
@@ -85,11 +109,13 @@ class AuthController extends Controller
             'password.required' => 'પાસવર્ડ દાખલ કરવો જરૂરી છે.',
         ]);
 
-        $loginInput = $request->input('login');
+        $rawInput = trim((string) $request->input('login'));
+        $cleanPhone = $this->normalizePhone($rawInput);
 
-        // Look up by phone or email
-        $user = User::where('phone', $loginInput)
-            ->orWhere('email', $loginInput)
+        // Look up by phone (cleaned or raw) or email
+        $user = User::where('phone', $cleanPhone)
+            ->orWhere('phone', $rawInput)
+            ->orWhere('email', $rawInput)
             ->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
@@ -97,7 +123,7 @@ class AuthController extends Controller
             AuditLog::create([
                 'user_id' => $user?->id,
                 'action' => 'unauthorized_login_attempt',
-                'details' => 'ખોટો પાસવર્ડ અથવા મોબાઈલ: ' . $loginInput,
+                'details' => 'ખોટો પાસવર્ડ અથવા મોબાઈલ: ' . $rawInput . ' (Cleaned: ' . $cleanPhone . ')',
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent(),
             ]);
