@@ -10,7 +10,15 @@ $databaseUrl = env('DATABASE_URL')
     ?: env('DB_URL') 
     ?: getenv('DB_URL');
 
-$parsedDbUrl = !empty($databaseUrl) && is_string($databaseUrl) ? parse_url($databaseUrl) : null;
+$isValidUrl = !empty($databaseUrl) && is_string($databaseUrl) && (
+    str_starts_with($databaseUrl, 'postgres://') ||
+    str_starts_with($databaseUrl, 'postgresql://') ||
+    str_starts_with($databaseUrl, 'mysql://') ||
+    str_starts_with($databaseUrl, 'sqlite://')
+);
+
+$parsedDbUrl = $isValidUrl ? parse_url($databaseUrl) : null;
+$cleanDatabaseUrl = $isValidUrl ? $databaseUrl : null;
 
 return [
 
@@ -95,7 +103,7 @@ return [
 
         'pgsql' => [
             'driver' => 'pgsql',
-            'url' => $databaseUrl,
+            'url' => $cleanDatabaseUrl,
             'host' => env('DB_HOST') && env('DB_HOST') !== '127.0.0.1' && env('DB_HOST') !== 'localhost' ? env('DB_HOST') : ($parsedDbUrl['host'] ?? env('DB_HOST', '127.0.0.1')),
             'port' => env('DB_PORT', isset($parsedDbUrl['port']) ? (string)$parsedDbUrl['port'] : '5432'),
             'database' => env('DB_DATABASE') && env('DB_DATABASE') !== 'laravel' && env('DB_DATABASE') !== 'sejani-db' ? env('DB_DATABASE') : (isset($parsedDbUrl['path']) ? ltrim($parsedDbUrl['path'], '/') : env('DB_DATABASE', 'sejani_database')),
